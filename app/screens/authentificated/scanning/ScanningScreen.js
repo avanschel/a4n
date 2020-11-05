@@ -19,11 +19,15 @@ class ScanningScreen extends React.Component {
 
     constructor(props) {
         super(props);
-
+        let found = (this.props.database && this.props.database.tables) ? this.props.database.tables.find(f => f.table_name === 'eq_surv') : null;
         this.loadSounds().then(res => {
             this.soundLoaded = res;
         });
-        this.state = {showRoom: true, showScan: false, showManual: false, focusOn: false}
+        if (found) {
+            this.state = {showRoom: true, showScan: false, showManual: false, focusOn: false, modeScan: 'eq'}
+        } else {
+            this.state = {showRoom: true, showScan: false, showManual: false, focusOn: false, modeScan: 'ta'}
+        }
     }
 
     async loadSounds() {
@@ -78,10 +82,10 @@ class ScanningScreen extends React.Component {
 
     saveSurv(val) {
         //Can scan if all required are filled ==> save and scan new .
-        this.props.saveSurvey(this.props.database.db, this.props.database, this.props.scanStatus, this.props.user.username).then(res => {
+        this.props.saveSurvey(this.props.database.db, this.props.database, this.props.scanStatus, this.props.user.username, this.state.modeScan).then(res => {
         });
         if (this.props.scanStatus.code === null) {
-            this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val).then((res) => {
+            this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val, this.state.modeScan).then((res) => {
                 //scan and retrieve is finished
                 this.launchPLaySound();
             })
@@ -89,17 +93,16 @@ class ScanningScreen extends React.Component {
     }
 
     onChangeCodeBar(val) {
-        console.log('onChangeCodeBar je change ma valeur', val);
         if (!this.props.scanStatus.error || this.state.showManual) {
             if (val === null) {
 
-                this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val).then((res) => {
+                this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val, this.state.modeScan).then((res) => {
                     //scan and retrieve is finished
                     this.launchPLaySound();
                 })
             } else {
                 if (this.props.scanStatus.code === null) {
-                    this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val).then((res) => {
+                    this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val, this.state.modeScan).then((res) => {
                         //scan and retrieve is finished
                         this.launchPLaySound();
                     })
@@ -109,13 +112,10 @@ class ScanningScreen extends React.Component {
     }
 
     onChange(val) {
-        console.log('je scan', val);
-        console.log('scanstatus', this.props.scanStatus.error);
-        console.log('scanstatus txt', this.props.scanStatus.codebar);
         this.setState({focusOn: false});
         if (!this.props.scanStatus.error) {
             if (this.props.scanStatus.code === null) {
-                this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val).then((res) => {
+                this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val, this.state.modeScan).then((res) => {
                     //scan and retrieve is finished
                     this.launchPLaySound();
                 })
@@ -129,10 +129,10 @@ class ScanningScreen extends React.Component {
                                     alert('Erreur lors de l\'enregistrement : le standard de bien renseigné n\'existe pas');
                                 } else {
                                     //Can scan if all required are filled ==> save and scan new .
-                                    this.props.saveSurvey(this.props.database.db, this.props.database, this.props.scanStatus, this.props.user.username).then(res => {
+                                    this.props.saveSurvey(this.props.database.db, this.props.database, this.props.scanStatus, this.props.user.username, this.state.modeScan).then(res => {
                                     });
                                     if (val !== null) {
-                                        this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val).then((res) => {
+                                        this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val, this.state.modeScan).then((res) => {
                                             //scan and retrieve is finished
                                             this.launchPLaySound();
                                         })
@@ -142,11 +142,11 @@ class ScanningScreen extends React.Component {
                         } else {
 
                             //Can scan if all required are filled ==> save and scan new .
-                            this.props.saveSurvey(this.props.database.db, this.props.database, this.props.scanStatus, this.props.user.username).then(res => {
+                            this.props.saveSurvey(this.props.database.db, this.props.database, this.props.scanStatus, this.props.user.username, this.state.modeScan).then(res => {
                                 console.log('save survey', this.props.scanStatus.error);
                                 if (!this.props.scanStatus.error) {
                                     if (val !== null) {
-                                        this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val).then((res) => {
+                                        this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val, this.state.modeScan).then((res) => {
                                             //scan and retrieve is finished
                                             this.launchPLaySound();
                                         })
@@ -167,9 +167,10 @@ class ScanningScreen extends React.Component {
     }
 
     onSave(data) {
-        this.props.saveSurvey(this.props.database.db, this.props.database, this.props.scanStatus, this.props.user.username).then(res => {
+        console.log('my data to save', data);
+        this.props.saveSurvey(this.props.database.db, this.props.database, this.props.scanStatus, this.props.user.username, this.state.modeScan).then(res => {
             if (!this.props.scanStatus.error) {
-                this.props.setCodeBar(this.props.database.db, this.props.scanStatus, null).then((res) => {
+                this.props.setCodeBar(this.props.database.db, this.props.scanStatus, null, this.state.modeScan).then((res) => {
                 })
             }
             this.onPressTa();
@@ -178,7 +179,7 @@ class ScanningScreen extends React.Component {
     }
 
     onCancel() {
-        this.props.setCodeBar(this.props.database.db, this.props.scanStatus, null).then((res) => {
+        this.props.setCodeBar(this.props.database.db, this.props.scanStatus, null, this.state.modeScan).then((res) => {
             this.onPressTa();
         })
         this.onPressManuel();
@@ -258,6 +259,7 @@ class ScanningScreen extends React.Component {
                 </View>
                 <ContainerScreen show={this.state.showRoom}/>
                 <ManualModeScanning
+                    modeScan={this.state.modeScan}
                     show={this.state.showManuel}
                     style={styles.scannerPart}
                     onChangeCodeBar={(value) => {
@@ -274,6 +276,7 @@ class ScanningScreen extends React.Component {
                     }}
                 />
                 <ScanerModeScan
+                    modeScan={this.state.modeScan}
                     show={this.state.showScan}
                     style={styles.scannerPart}
                     focusOn={this.state.focusOn}
@@ -350,11 +353,11 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = (dispatch) => {
     return {
-        setCodeBar: async (db, state, codebar) => {
-            return await dispatch(retrieveDataForCodeBar(db, dispatch, state, codebar))
+        setCodeBar: async (db, state, codebar, mode) => {
+            return await dispatch(retrieveDataForCodeBar(db, dispatch, state, codebar, mode))
         },
-        saveSurvey: async (db, dbState, state, user) => {
-            return await dispatch(saveSurveyAfterScanning(db, dispatch, dbState, state, user))
+        saveSurvey: async (db, dbState, state, user, mode) => {
+            return await dispatch(saveSurveyAfterScanning(db, dispatch, dbState, state, user, mode))
         },
     };
 };

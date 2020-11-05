@@ -44,7 +44,7 @@ export default function PhoneScan(props) {
                 onBarCodeScanned={handleBarCodeScanned}
                 style={[styles.container]}
             />
-            <ScanningFormScreen show={true} codeBar={codeBar} press={(value) => props.press(value)}/>
+            <ScanningFormScreen modeScan={this.props.modeScan} show={true} codeBar={codeBar} press={(value) => props.press(value)}/>
         </View>
     );
 

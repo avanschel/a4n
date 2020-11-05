@@ -67,6 +67,7 @@ class ManualModeScanning extends React.Component {
                         }}/>
                     </View>
                     <ScanningFormScreen
+                        modeScan={this.props.modeScan}
                         manual={true}
                         show={this.state.showForm}
                         focuss={!this.props.focusOn}
