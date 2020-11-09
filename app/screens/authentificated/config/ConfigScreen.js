@@ -26,7 +26,7 @@ class ConfigScreen extends React.Component {
                 </View>
                 <View style={styles.lastLine}>
                     <Text style={styles.title}>Application version </Text>
-                    <Text style={styles.val}>v1.4.0</Text>
+                    <Text style={styles.val}>v1.4.2</Text>
                 </View>
             </View></ScrollView>
         )

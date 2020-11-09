@@ -340,6 +340,8 @@ class ScanningFormScreen extends React.Component {
                 )
             }
         } else {
+            // Add custom code for enum field
+            console.log('mon defField', defField);
             return (
                 <View style={styles.textInput}>
                     <TextInput style={styles.formInput} value={this.props.scanStatus.survey[defField.field_name]}
