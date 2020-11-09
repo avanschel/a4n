@@ -9,9 +9,10 @@ import {checkBlFlRm, getTableDef, onChangeSurvey, onSetSCanState} from "../../..
 import {asyncRetrieveAssetsById, asyncRetrieveAssetsLimit} from "../../../api/assets";
 import {AntDesign} from "@expo/vector-icons";
 import FormModalScreen from "./FormModalScreen";
+import SelectorScreen from "./SelectorScreen";
 
 class ScanningFormScreen extends React.Component {
-
+    enumListLabels = {};
     blData = [];
     filterBlData = [];
     flData = [];
@@ -25,9 +26,22 @@ class ScanningFormScreen extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {tableModal: null, showMyModal: false, titleModal: null, dataModal: null};
+        this.state = {
+            tableModal: null,
+            showMyModal: false,
+            titleModal: null,
+            dataModal: null,
+            showSelector: false,
+            dataSelector: false,
+            fieldSelector: ''
+        };
         this.stdTableName = (this.props.modeScan === 'eq') ? 'eqstd' : 'fnstd';
         this.props.getDefFields(this.props.database.db, this.props.scanStatus, this.props.modeScan).then(res => {
+            var enums = res.state.defFields.filter(df => df["enum_list"] && df["enum_list"].length > 0);
+            for (var i = 0; i < enums.length; i++) {
+                this.enumListLabels[enums[i]["field_name"]] = "";
+            }
+            console.log('mon super enum', this.enumListLabels);
         });
         asyncRetrieveAssetsLimit(this.props.database.db, 'bl', null, null, null, null, null).then(bl => {
             asyncRetrieveAssetsLimit(this.props.database.db, 'fl', null, null, null, null, null).then(fl => {
@@ -88,6 +102,18 @@ class ScanningFormScreen extends React.Component {
                 return styles.scanError;
 
         }
+    }
+
+    showSelector(field, data) {
+        this.setState({showSelector: true, dataSelector: data, fieldSelector: field});
+    }
+
+    closeSelector(field, value) {
+        console.log('my field', field);
+        console.log('my value', value);
+        this.enumListLabels[field] = value.label;
+        this.setState({showSelector: false});
+        this.onFieldChange(field, value.value);
     }
 
     showMyModal(table) {
@@ -341,15 +367,33 @@ class ScanningFormScreen extends React.Component {
             }
         } else {
             // Add custom code for enum field
-            console.log('mon defField', defField);
-            return (
-                <View style={styles.textInput}>
-                    <TextInput style={styles.formInput} value={this.props.scanStatus.survey[defField.field_name]}
-                               onChangeText={(input) => {
-                                   this.onFieldChange(defField.field_name, input)
-                               }}/>
-                </View>
-            )
+            if (defField && defField["enum_list"] && defField["enum_list"].length > 0) {
+                const enumlistData = defField["enum_list"].split(";");
+                const enumList = [{value: '', label: 'No value'}];
+                for (var i = 0; i < enumlistData.length; i = i + 2) {
+                    enumList.push({value: enumlistData[i], label: enumlistData[i + 1]});
+                }
+
+                return (
+
+                    <TouchableWithoutFeedback
+                        onPress={() => this.showSelector(defField.field_name, enumList)}>
+                        <View>
+                            <Text
+                                style={styles.formInputTT}>{this.enumListLabels[defField.field_name]}</Text>
+                        </View>
+                    </TouchableWithoutFeedback>
+                )
+            } else {
+                return (
+                    <View style={styles.textInput}>
+                        <TextInput style={styles.formInput} value={this.props.scanStatus.survey[defField.field_name]}
+                                   onChangeText={(input) => {
+                                       this.onFieldChange(defField.field_name, input)
+                                   }}/>
+                    </View>
+                )
+            }
         }
     }
 
@@ -476,6 +520,10 @@ class ScanningFormScreen extends React.Component {
                             <FormModalScreen show={this.state.showMyModal} table={this.state.tableModal}
                                              title={this.state.titleModal} data={this.state.dataModal}
                                              press={(table, value) => this.closeMyModal(table, value)}/>
+                            <SelectorScreen show={this.state.showSelector} field={this.state.fieldSelector}
+                                            data={this.state.dataSelector}
+                                            press={(field, value) => this.closeSelector(field, value)}/>
+
                         </View>
                     )
                 } else {
@@ -599,6 +647,12 @@ const styles = StyleSheet.create({
     formInput: {
         flex: 2,
         borderWidth: 1, borderColor: '#ddd', paddingLeft: 5, height: 40
+    },
+    formInputTT: {
+        width: '100%',
+        borderRadius: 0,
+        borderWidth: 1, borderColor: '#ddd', paddingLeft: 5, height: 40,
+        paddingTop: 10,
     },
     formInputReadOnly: {
         borderWidth: 1, borderColor: '#ddd', padding: 5, backgroundColor: '#eee'
