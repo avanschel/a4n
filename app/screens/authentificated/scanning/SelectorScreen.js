@@ -12,8 +12,6 @@ class SelectorScreen extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log('porpsfield', this.props.field);
-        console.log('data', this.props.data);
     }
 
     setWidthOfFlatList() {

@@ -38,10 +38,10 @@ class ScanningFormScreen extends React.Component {
         this.stdTableName = (this.props.modeScan === 'eq') ? 'eqstd' : 'fnstd';
         this.props.getDefFields(this.props.database.db, this.props.scanStatus, this.props.modeScan).then(res => {
             var enums = res.state.defFields.filter(df => df["enum_list"] && df["enum_list"].length > 0);
+            const survey = this.props.scanStatus["survey"];
             for (var i = 0; i < enums.length; i++) {
-                this.enumListLabels[enums[i]["field_name"]] = "";
+                this.enumListLabels[enums[i]["field_name"]] = survey[enums[i]["field_name"]];
             }
-            console.log('mon super enum', this.enumListLabels);
         });
         asyncRetrieveAssetsLimit(this.props.database.db, 'bl', null, null, null, null, null).then(bl => {
             asyncRetrieveAssetsLimit(this.props.database.db, 'fl', null, null, null, null, null).then(fl => {
@@ -109,8 +109,6 @@ class ScanningFormScreen extends React.Component {
     }
 
     closeSelector(field, value) {
-        console.log('my field', field);
-        console.log('my value', value);
         this.enumListLabels[field] = value.label;
         this.setState({showSelector: false});
         this.onFieldChange(field, value.value);
@@ -370,17 +368,21 @@ class ScanningFormScreen extends React.Component {
             if (defField && defField["enum_list"] && defField["enum_list"].length > 0) {
                 const enumlistData = defField["enum_list"].split(";");
                 const enumList = [{value: '', label: 'No value'}];
+                let value = "";
                 for (var i = 0; i < enumlistData.length; i = i + 2) {
                     enumList.push({value: enumlistData[i], label: enumlistData[i + 1]});
+                    if (value.length === 0) {
+                        value = (this.props.scanStatus.survey[defField.field_name].length > 0 && this.props.scanStatus.survey[defField.field_name] === enumlistData[i]) ? enumlistData[i + 1] : "";
+                        console.log('ma super valeur ? ' + enumlistData[i] + "//" + this.props.scanStatus.survey[defField.field_name], (this.props.scanStatus.survey[defField.field_name].length > 0 && this.props.scanStatus.survey[defField.field_name] === enumlistData[i]));
+                    }
                 }
-
                 return (
 
                     <TouchableWithoutFeedback
                         onPress={() => this.showSelector(defField.field_name, enumList)}>
                         <View>
                             <Text
-                                style={styles.formInputTT}>{this.enumListLabels[defField.field_name]}</Text>
+                                style={styles.formInputTT}>{value}</Text>
                         </View>
                     </TouchableWithoutFeedback>
                 )
