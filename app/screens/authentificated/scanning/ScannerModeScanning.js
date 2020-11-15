@@ -7,7 +7,6 @@ class ScanerModeScan extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-
             scanFocused: true,
             scanning_currtype: "afm_flds",
             scanning_currtype_iscontainer: false,

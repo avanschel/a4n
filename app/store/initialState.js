@@ -27,7 +27,7 @@ export const initialState = {
         loading: {loading: false, message: null},
         username: null,
         password: null,
-        server: 'https://macif.aremis.com/archibus', //'http://192.168.1',
+        server: 'http://192.168.1',
         initialized: false
     },
     scan: {

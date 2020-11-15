@@ -109,9 +109,11 @@ class ScanningFormScreen extends React.Component {
     }
 
     closeSelector(field, value) {
+        if(value!== null){
         this.enumListLabels[field] = value.label;
-        this.setState({showSelector: false});
         this.onFieldChange(field, value.value);
+        }
+        this.setState({showSelector: false});
     }
 
     showMyModal(table) {
@@ -373,7 +375,6 @@ class ScanningFormScreen extends React.Component {
                     enumList.push({value: enumlistData[i], label: enumlistData[i + 1]});
                     if (value.length === 0) {
                         value = (this.props.scanStatus.survey[defField.field_name].length > 0 && this.props.scanStatus.survey[defField.field_name] === enumlistData[i]) ? enumlistData[i + 1] : "";
-                        console.log('ma super valeur ? ' + enumlistData[i] + "//" + this.props.scanStatus.survey[defField.field_name], (this.props.scanStatus.survey[defField.field_name].length > 0 && this.props.scanStatus.survey[defField.field_name] === enumlistData[i]));
                     }
                 }
                 return (
