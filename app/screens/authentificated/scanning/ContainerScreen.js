@@ -196,7 +196,7 @@ class ContainerScreen extends React.Component {
         if (value !== 'title') {
             switch (table) {
                 case 'bl':
-                    this.filterBl(value.bl_id);
+                    this.onChangeBl(value.bl_id);
                     break;
                 case 'fl':
                     this.props.setContainer(this.props.scanStatus, 'fl', {

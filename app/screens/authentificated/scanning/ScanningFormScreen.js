@@ -109,9 +109,9 @@ class ScanningFormScreen extends React.Component {
     }
 
     closeSelector(field, value) {
-        if(value!== null){
-        this.enumListLabels[field] = value.label;
-        this.onFieldChange(field, value.value);
+        if (value !== null) {
+            this.enumListLabels[field] = value.label;
+            this.onFieldChange(field, value.value);
         }
         this.setState({showSelector: false});
     }
@@ -476,9 +476,7 @@ class ScanningFormScreen extends React.Component {
                 )
             } else {
                 if (!this.props.scanStatus.loading) {
-                    if (this.props.scanStatus.error) {
-                        this.showError();
-                    } else {
+                    if (!this.props.scanStatus.error) {
                         this.setFilter('bl_id', this.props.scanStatus.survey.bl_id);
                         this.setFilter('fl_id', this.props.scanStatus.survey.fl_id);
                         this.setFilter('rm_id', this.props.scanStatus.survey.rm_id);
@@ -507,6 +505,13 @@ class ScanningFormScreen extends React.Component {
                                         </View>
                                     </TouchableWithoutFeedback>
                                 </View>
+                                {
+                                    this.props.scanStatus.error ?
+                                        <View style={styles.errorPan}>
+                                            <Text>Vous devez remplir les champs *</Text>
+                                        </View>
+                                        : false
+                                }
                                 <View style={styles.forms}>
                                     <ScrollView style={[styles.subForm, this.getStyleSubForm()]}>
                                         <View>
@@ -541,6 +546,14 @@ class ScanningFormScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
+    errorPan: {
+        padding: 8,
+        color: '#a94442',
+        backgroundColor: '#f2dede',
+        margin: 5,
+        borderWidth: 1,
+        borderColor: '#ebccd1'
+    },
     placeHolder: {
         textAlign: 'center', padding: 20,
         fontSize: 16,

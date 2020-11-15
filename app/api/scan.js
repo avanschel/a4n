@@ -162,7 +162,7 @@ export async function saveSurveyAfterScanning(db, dispatch, dbState, state, user
         if (state.code === null) {
         } else {
             requiredField.map((item) => {
-                if (item.field_name !== fieldNameToCheck && state.survey[item.field_name].length === 0) {
+                if (state.survey[item.field_name].length === 0) {
                     errorField.push(item.ml_heading.replace(/\n|\r|(\n\r)/g, ' ').toUpperCase());
                 }
 
