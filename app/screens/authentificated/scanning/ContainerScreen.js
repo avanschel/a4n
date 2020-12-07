@@ -179,7 +179,6 @@ class ContainerScreen extends React.Component {
                 break;
 
             case 'rm':
-                console.log('je filtre mes données', this.props.scanStatus.container);
                 this.filterRm('');
                 this.setState({
                     tableModal: 'rm',

@@ -207,13 +207,30 @@ class ScanningFormScreen extends React.Component {
     }
 
     filterBl(value) {
+        if (value.length) {
+            // Filter Data
+            this.filterBlData = this.blData.filter(item => {
+                return (item.bl_id.startsWith(value))
+            })
+            this.filterFlData = this.flData.filter(item => {
+                return (item.bl_id.startsWith(value))
+            });
+            this.filterRmData = this.rmData.filter(item => {
+                return (item.bl_id.startsWith(value))
+            });
+        } else {
+            this.filterBlData = this.blData;
+            this.filterFlData = this.flData;
+            this.filterRmData = this.rmData;
+        }
+        /*
         this.filterBlData = (value && value.length) ? this.blData.filter(item => {
             return (item.bl_id.startsWith(value))
         }) : this.blData;
         if (value.length) {
             this.filterFl('');
             this.filterRm('');
-        }
+        }*/
     }
 
     filterFnStd(value) {
@@ -326,6 +343,14 @@ class ScanningFormScreen extends React.Component {
         this.change = true;
         let survey = this.props.scanStatus.survey;
         survey[field] = value;
+        switch(field){
+            case 'bl_id':
+                survey.fl_id='';
+                survey.rm_id='';
+                break;
+            case 'fl_id':
+                survey.rm_id='';
+        }
         this.props.changeSurvey(this.props.scanStatus, survey).then(res => {
         });
 
@@ -441,9 +466,6 @@ class ScanningFormScreen extends React.Component {
 
     onBlur(table) {
         checkBlFlRm(this.props.database.db, table, this.props.scanStatus.survey).then(res => {
-            if (!res.good) {
-                alert(res.message);
-            }
         })
     }
 
@@ -456,9 +478,6 @@ class ScanningFormScreen extends React.Component {
         }
         if (this.props.scanStatus.survey[field].length > 0) {
             asyncRetrieveAssetsById(this.props.database.db, table, field, this.props.scanStatus.survey[field], null).then(res => {
-                if (res.length === 0) {
-                    alert(message);
-                }
             });
         }
     }
