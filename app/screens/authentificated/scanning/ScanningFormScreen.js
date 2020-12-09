@@ -139,7 +139,7 @@ class ScanningFormScreen extends React.Component {
                 break;
 
             case 'rm':
-                this.filterFl(this.props.scanStatus.survey.rm_id);
+                this.filterRm(this.props.scanStatus.survey.rm_id);
                 this.setState({
                     tableModal: 'rm',
                     showMyModal: true,
@@ -269,6 +269,7 @@ class ScanningFormScreen extends React.Component {
     }
 
     filterRm(value) {
+        console.log('je filtre rm', value);
         if (this.props.scanStatus.survey.bl_id.length) {
             //bl id fill and fl id fill
             if (this.props.scanStatus.survey.fl_id.length) {
@@ -308,11 +309,13 @@ class ScanningFormScreen extends React.Component {
                     });
                 }
             } else {
+                console.log('im here '+ value,(value && value.length))
                 //bl and rm fill
                 if (value && value.length) {
                     this.filterRmData = this.rmData.filter(item => {
                         return (item.rm_id.startsWith(value))
                     });
+                    console.log('je suis ici', this.filterRmData.length);
                 } else {
                     this.filterRmData = this.rmData.filter(item => {
                         return true
@@ -324,6 +327,7 @@ class ScanningFormScreen extends React.Component {
     }
 
     setFilter(field, value) {
+        console.log('set filter for ' + field + '=' + value);
         switch (field) {
             case 'bl_id':
                 this.filterBl(value);
@@ -343,13 +347,13 @@ class ScanningFormScreen extends React.Component {
         this.change = true;
         let survey = this.props.scanStatus.survey;
         survey[field] = value;
-        switch(field){
+        switch (field) {
             case 'bl_id':
-                survey.fl_id='';
-                survey.rm_id='';
+                survey.fl_id = '';
+                survey.rm_id = '';
                 break;
             case 'fl_id':
-                survey.rm_id='';
+                survey.rm_id = '';
         }
         this.props.changeSurvey(this.props.scanStatus, survey).then(res => {
         });
