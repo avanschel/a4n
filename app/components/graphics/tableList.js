@@ -3,12 +3,14 @@ import {StyleSheet, Text, Dimensions, View, ScrollView, TextInput, FlatList} fro
 import {connect} from "react-redux";
 import {setCurrentDataToProps} from "../../api/data";
 import {asyncRetrieveAssetsLimit} from "../../api/assets";
+import {SURV_PREFIX} from "../../../constante";
 
 class TableList extends React.Component {
     width = Math.round(Dimensions.get('window').width);
     title = '';
     nbItems = 0;
     sizeCell = 150;
+    changing = false;
 
     constructor(props) {
         super(props);
@@ -64,14 +66,19 @@ class TableList extends React.Component {
 
     async loadData(reset) {
         let stringFilter = await this.createFilter();
-        let elem = this.props.database.tables.filter((e) => {
+        let elem = this.props.database.tables.find((e) => {
             return e.table_name === this.props.database.currentTable
         });
-        if (elem.length) {
-            elem = elem[0];
+        if (!reset) {
+            if (this.changing) {
+                reset = true;
+                this.changing = false;
+            }
         }
         let nbPage = (elem) ? Math.ceil(elem.nb_element / 20) : 0;
-        if (this.props.database.currentPage < nbPage) {
+
+        console.log('['+this.props.database.currentTable+'] filter :'+stringFilter+' / nbPage :'+nbPage);
+        if (reset || this.props.database.currentPage < nbPage) {
             await asyncRetrieveAssetsLimit(this.props.database.db, this.props.database.currentTable, null, null, (reset) ? 0 : this.props.database.currentPage, 20, stringFilter).then(res => {
                 this.props.setCurrentData(this.props.database, res, this.props.database.currentPage + 1, reset);
             });
@@ -87,6 +94,7 @@ class TableList extends React.Component {
             filters[field_name] = input;
         }
         this.setState({filters: filters});
+        this.changing = true;
         this.loadData(true);
 
     }

@@ -95,6 +95,7 @@ export function asyncRetrieveAssetsLimit(db,tbl,fld,value,pageNum,pageSize,filte
             db.transaction(tx => {
                 //	let query = `select count(1) from  `+tbl;
                 let query = `select * from  `+tbl+clause+limit+sort;
+                console.log('=====>my query : '+query)
                 tx.executeSql( query   ,  [],
                     (_, { rows: { _array } }) => {
                         for(let i=0; i < _array.length ; i++){
