@@ -1,15 +1,12 @@
 import React from 'react';
-import {StyleSheet, Text, View, ScrollView, TextInput} from 'react-native';
+import {StyleSheet, Text, TextInput, View} from 'react-native';
 import {connect} from 'react-redux';
 import {AntDesign} from '@expo/vector-icons';
-import {asyncRetrieveAssetsByFilter, asyncRetrieveAssetsById, asyncRetrieveAssetsLimit} from "../../../api/assets";
+import {asyncRetrieveAssetsLimit} from "../../../api/assets";
 import ModalScreen from "./ModalScreen";
-import {checkBlFlRm, editContainer, retrieveDataForCodeBar} from "../../../api/scan";
+import {editContainer} from "../../../api/scan";
 
 class ContainerScreen extends React.Component {
-    blId;
-    flId;
-    rmId;
     blData = [];
     filterBlData = [];
     flData = [];
@@ -37,25 +34,20 @@ class ContainerScreen extends React.Component {
     filterBl(value) {
         if (value.length) {
             // Filter Data
-            this.filterBlData =  this.blData.filter(item => { return (item.bl_id.startsWith(value)) })
-            this.filterFlData = this.flData.filter(item => { return (item.bl_id.startsWith(value)) });
-            this.filterRmData = this.rmData.filter(item => { return (item.bl_id.startsWith(value)) });
+            this.filterBlData = this.blData.filter(item => {
+                return (item.bl_id.startsWith(value))
+            })
+            this.filterFlData = this.flData.filter(item => {
+                return (item.bl_id.startsWith(value))
+            });
+            this.filterRmData = this.rmData.filter(item => {
+                return (item.bl_id.startsWith(value))
+            });
         } else {
             this.filterBlData = this.blData;
             this.filterFlData = this.flData;
             this.filterRmData = this.rmData;
         }
-
-        /*  this.blId = value;
-          this.props.setContainer(this.props.scanStatus, 'bl', value, false).then(res => {
-              this.filterBlData = (value.length) ? this.blData.filter(item => {
-                  return (item.bl_id.startsWith(value))
-              }) : this.blData;
-              if (value.length) {
-                  this.filterFl('');
-                  this.filterRm();
-              }
-          });*/
     }
 
     filterFl(value) {
@@ -83,6 +75,7 @@ class ContainerScreen extends React.Component {
         }
         this.filterRm();
     }
+
     filterRm() {
         let value = this.props.scanStatus.container.rm_id;
         if (this.props.scanStatus.container.bl_id.length) {
@@ -138,10 +131,12 @@ class ContainerScreen extends React.Component {
         }
 
     }
+
     onChangeBl(value) {
         this.props.setContainer(this.props.scanStatus, 'bl', {bl_id: value, fl_id: '', rm_id: ''}, true);
         this.filterBl(value);
     }
+
     onChangeFl(value) {
         this.props.setContainer(this.props.scanStatus, 'fl', {
             bl_id: this.props.scanStatus.container.bl_id,
@@ -149,6 +144,7 @@ class ContainerScreen extends React.Component {
             rm_id: ''
         }, true);
     }
+
     onChangeRm(value) {
         this.props.setContainer(this.props.scanStatus, 'rm', {
             bl_id: this.props.scanStatus.container.bl_id,
@@ -203,7 +199,7 @@ class ContainerScreen extends React.Component {
                         fl_id: value.fl_id,
                         rm_id: ''
                     }, true);
-                  // this.filterFl(value.fl_id);
+                    // this.filterFl(value.fl_id);
                     break;
                 case 'rm':
                     this.props.setContainer(this.props.scanStatus, 'rm', {

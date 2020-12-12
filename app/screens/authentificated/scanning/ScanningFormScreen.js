@@ -269,7 +269,6 @@ class ScanningFormScreen extends React.Component {
     }
 
     filterRm(value) {
-        console.log('je filtre rm', value);
         if (this.props.scanStatus.survey.bl_id.length) {
             //bl id fill and fl id fill
             if (this.props.scanStatus.survey.fl_id.length) {
@@ -309,13 +308,11 @@ class ScanningFormScreen extends React.Component {
                     });
                 }
             } else {
-                console.log('im here '+ value,(value && value.length))
                 //bl and rm fill
                 if (value && value.length) {
                     this.filterRmData = this.rmData.filter(item => {
                         return (item.rm_id.startsWith(value))
                     });
-                    console.log('je suis ici', this.filterRmData.length);
                 } else {
                     this.filterRmData = this.rmData.filter(item => {
                         return true
@@ -327,7 +324,6 @@ class ScanningFormScreen extends React.Component {
     }
 
     setFilter(field, value) {
-        console.log('set filter for ' + field + '=' + value);
         switch (field) {
             case 'bl_id':
                 this.filterBl(value);
