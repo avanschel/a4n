@@ -1,5 +1,14 @@
 import React from 'react';
-import {StyleSheet, Text, View, Dimensions, ScrollView, FlatList, TouchableWithoutFeedback} from 'react-native';
+import {
+    StyleSheet,
+    Text,
+    View,
+    Dimensions,
+    ScrollView,
+    FlatList,
+    TouchableWithoutFeedback,
+    TextInput
+} from 'react-native';
 import {connect} from 'react-redux';
 import {AntDesign} from "@expo/vector-icons";
 
@@ -9,9 +18,16 @@ class FormModalScreen extends React.Component {
     title = '';
     nbItems = 0;
     sizeCell = 150;
+    // for filtering
+    filteredData;
+    needToReload = true;
+    table = null;
 
     constructor(props) {
         super(props);
+        this.state = {
+            filters: {}
+        }
     }
 
     setWidthOfFlatList() {
@@ -78,6 +94,11 @@ class FormModalScreen extends React.Component {
                         style = (i === 0) ? [styles.headerRow, {width: this.sizeCell}] : [styles.headerRow, {width: this.sizeCell}, styles.borderLeftHeader];
                         return <View key={'vw' + i} style={style}>
                             <Text style={styles.headerTitle}>{item.ml_heading.toUpperCase()}</Text>
+                            <TextInput style={styles.textInputHeader}
+                                       onChangeText={(input) => {
+                                           this.onChangeText(item.field_name, input)
+                                       }}>
+                            </TextInput>
                         </View>
                     })
                 }
@@ -96,7 +117,7 @@ class FormModalScreen extends React.Component {
                         width: this.sizeCell
                     }, styles.borderLeft];
                     return <TouchableWithoutFeedback key={'vw' + i} onPress={() => {
-                        this.props.press(this.props.table, item);
+                        this.chooseLine(item);
                     }}><View style={style}><Text
                         style={styles.lineTitle}>{item[header.field_name]}</Text></View></TouchableWithoutFeedback>
                 })
@@ -104,9 +125,51 @@ class FormModalScreen extends React.Component {
         </View>)
     }
 
+    // search part
+
+    onChangeText(field_name, input) {
+        let filters = this.state.filters;
+        if (filters.hasOwnProperty(field_name)) {
+            filters[field_name] = input;
+        } else {
+            filters[field_name] = input;
+        }
+        this.setState({filters: filters});
+        this.filterData();
+
+    }
+
+    filterData() {
+        this.filteredData = this.props.data;
+        Object.keys(this.state.filters).map((key, ind) => {
+            let value = this.state.filters[key];
+            value = (value && value.length) ? value.toUpperCase() : value;
+            this.filteredData = this.filteredData.filter(f => (f[key] && f[key].toUpperCase()).startsWith(value))
+        })
+        return true;
+    }
+
+    reload() {
+        if (this.needToReload) {
+            this.needToReload = false;
+            this.filteredData = this.props.data;
+        }
+    }
+    chooseLine(item){
+        this.setState({filters: {}});
+        this.needToReload = true;
+        this.props.press(this.props.table, item);
+    }
+    close() {
+        this.setState({filters: {}});
+        this.needToReload = true;
+        this.props.press(this.props.table, 'title');
+    }
+
     render() {
         if (this.props.show) {
             this.Header();
+            this.reload();
             return (
                 <View style={styles.container}>
                     <View style={styles.header}>
@@ -114,7 +177,7 @@ class FormModalScreen extends React.Component {
                             this.props.press(this.props.table, 'title');
                         }}>{this.props.title.toUpperCase()}</Text>
                         <AntDesign name={'close'} style={[styles.icon]} onPress={() => {
-                            this.props.press(this.props.table, 'title');
+                           this.close()
                         }}/>
                     </View>
                     <ScrollView horizontal style={{flex: 1}}
@@ -124,7 +187,7 @@ class FormModalScreen extends React.Component {
                         <View style={{flexDirection: 'column', width: '100%'}}>
                             {this.renderHeader()}
                             <FlatList
-                                data={this.props.data}
+                                data={this.filteredData}
                                 keyExtractor={this.keyExtractor}
                                 renderItem={({item}) => (this.generateLine(item))}
                             />
@@ -201,6 +264,11 @@ const styles = StyleSheet.create({
         fontSize: 18,
         paddingTop: 5, textAlign: 'center',
         alignContent: 'center', color: '#fff'
+    },
+    textInputHeader: {
+        borderColor: '#eee',
+        borderWidth: 1,
+        backgroundColor: '#fff'
     },
     txt: {
         padding: 10,

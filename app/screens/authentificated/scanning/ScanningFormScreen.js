@@ -223,23 +223,17 @@ class ScanningFormScreen extends React.Component {
             this.filterFlData = this.flData;
             this.filterRmData = this.rmData;
         }
-        /*
-        this.filterBlData = (value && value.length) ? this.blData.filter(item => {
-            return (item.bl_id.startsWith(value))
-        }) : this.blData;
-        if (value.length) {
-            this.filterFl('');
-            this.filterRm('');
-        }*/
     }
 
-    filterFnStd(value) {
-        this.filterStdData = (value && value.length) ? this.stdData.filter(item => {
-            return (item.fn_std.startsWith(value))
-        }) : this.stdData;
-        if (value.length) {
-            this.filterFl('');
-            this.filterRm('');
+    filterStandard() {
+        if(this.stdTableName === 'eqstd'){
+            this.filterStdData = (this.props.scanStatus.survey.eq_std && this.props.scanStatus.survey.eq_std.length) ? this.stdData.filter(item => {
+                return (item.eq_std.startsWith(this.props.scanStatus.survey.eq_std))
+            }) : this.stdData;
+        }else{
+            this.filterStdData = (this.props.scanStatus.survey.fn_std && this.props.scanStatus.survey.fn_std.length) ? this.stdData.filter(item => {
+                return (item.fn_std.startsWith(this.props.scanStatus.survey.fn_std))
+            }) : this.stdData;
         }
     }
 
@@ -334,8 +328,8 @@ class ScanningFormScreen extends React.Component {
             case 'rm_id':
                 this.filterRm(value);
                 break;
-            case 'fn_std':
-                this.filterFnStd(value);
+            case 'standard':
+                this.filterStandard();
         }
     }
 
@@ -499,7 +493,7 @@ class ScanningFormScreen extends React.Component {
                         this.setFilter('bl_id', this.props.scanStatus.survey.bl_id);
                         this.setFilter('fl_id', this.props.scanStatus.survey.fl_id);
                         this.setFilter('rm_id', this.props.scanStatus.survey.rm_id);
-                        // this.setFilter('fn_std', this.props.scanStatus.survey.fn_std);
+                        this.setFilter('standard',null);
                     }
                     return (
                         <View style={styles.main}>
