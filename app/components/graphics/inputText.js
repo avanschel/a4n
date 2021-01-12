@@ -39,7 +39,8 @@ const styles = StyleSheet.create({
     },
     input:{
         flex:3,paddingLeft:5,
-        color:'#6c88b0'
+        color:'#6c88b0',
+        backgroundColor:'#ffffff',
     }
 });
 export default InputText;

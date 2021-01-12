@@ -40,7 +40,7 @@ class LoginScreen extends React.Component {
     render() {
         let change = this.change;
         return (
-            <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
+            <KeyboardAvoidingView behavior="height" style={{flex: 1}}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={styles.container}>
                     <View style={styles.container}>
                         <View style={styles.logoContainer}>
