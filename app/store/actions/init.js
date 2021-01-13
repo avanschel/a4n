@@ -6,6 +6,7 @@ import {
     openLocalDatabase
 } from "../../api/database";
 import {generateUserNextState, getUserObj, setParameter} from "./user";
+import {retrieveTranslation} from "../../api/translation";
 
 export function initApp(state){
     return new Promise((resolve,reject)=>{
@@ -27,7 +28,10 @@ export function initApp(state){
 
                     getListOfTableAndCount(nextState.database.db).then(data=>{
                         nextState.database.tables = data;
-                        resolve(nextState);
+                        retrieveTranslation(nextState.database.db,nextState.user.server).then(result=>{
+                            console.log('my result', result);
+                            resolve(nextState);
+                        })
                     })
                 }).catch(err=>{
                     nextState.database.loading.loading = false;
