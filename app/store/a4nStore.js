@@ -1,4 +1,3 @@
-
 import {applyMiddleware, combineReducers, createStore} from 'redux';
 import thunk from 'redux-thunk';
 import asyncAwait from 'redux-async-await';
@@ -7,12 +6,14 @@ import database from "./reducers/database";
 import globalStateManagement from "./reducers/global";
 import progressManagement from "./reducers/progress";
 import scanStatus from "./reducers/scan";
+import translationManagement from "./reducers/translation";
 
-const middleWare = [thunk,asyncAwait];
+const middleWare = [thunk, asyncAwait];
 export default createStore(combineReducers({
-        progressManagement,
-        globalStateManagement,
-        userManagement,
-        localDatabase: database,
-        scanStatus
-    }),applyMiddleware(...middleWare));
+    progressManagement,
+    globalStateManagement,
+    userManagement,
+    localDatabase: database,
+    scanStatus,
+    translationManagement
+}), applyMiddleware(...middleWare));

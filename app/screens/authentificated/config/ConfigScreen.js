@@ -3,29 +3,43 @@ import { StyleSheet, Text, View,ScrollView } from 'react-native';
 import { connect } from 'react-redux'
 import { setLocalParams} from "../../../store/actions/actions";
 import Constants from 'expo-constants';
+import {translate} from "../../../store/reducers/translation";
 class ConfigScreen extends React.Component {
+
+    translation;
+    constructor(props) {
+        super(props);
+        this.state = {username: this.props.user.username, password: null, server: this.props.user.server};
+        this.translation = {
+            server:translate('config-screen', 'server',this.props.translation),
+            user:translate('config-screen', 'user',this.props.translation),
+            deviceId:translate('config-screen', 'device-id',this.props.translation),
+            deviceName:translate('config-screen', 'device-name',this.props.translation),
+            applicationVersion:translate('config-screen', 'application-version',this.props.translation)
+        }
+    }
     render(){
         return (
             <ScrollView style={{width:'100%'}}>
             <View style={styles.container}>
                 <View style={styles.line}>
-                    <Text style={styles.title}>Server </Text>
+                    <Text style={styles.title}>{this.translation.server} </Text>
                     <Text style={styles.val}>{this.props.user.server}</Text>
                 </View>
                 <View style={styles.line}>
-                    <Text style={styles.title}>User </Text>
+                    <Text style={styles.title}>{this.translation.user}  </Text>
                     <Text style={styles.val}>{this.props.user.username}</Text>
                 </View>
                 <View style={styles.line}>
-                    <Text style={styles.title}>Device id </Text>
+                    <Text style={styles.title}>{this.translation.deviceId} </Text>
                     <Text style={styles.val}>{Constants.deviceId}</Text>
                 </View>
                 <View style={styles.line}>
-                    <Text style={styles.title}>Device Name </Text>
+                    <Text style={styles.title}>{this.translation.deviceName} </Text>
                     <Text style={styles.val}>{Constants.deviceName}</Text>
                 </View>
                 <View style={styles.lastLine}>
-                    <Text style={styles.title}>Application version </Text>
+                    <Text style={styles.title}>{this.translation.applicationVersion} </Text>
                     <Text style={styles.val}>v1.4.2 BETA 21-01-12</Text>
                 </View>
             </View></ScrollView>
@@ -63,7 +77,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
     return {
         user : state.userManagement,
-        database : state.localDatabase
+        database : state.localDatabase,
+        translation: state.translationManagement
     };
 };
 const mapDispatchToProps = (dispatch) => {

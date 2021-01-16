@@ -29,7 +29,9 @@ export function initApp(state){
                     getListOfTableAndCount(nextState.database.db).then(data=>{
                         nextState.database.tables = data;
                         retrieveTranslation(nextState.database.db,nextState.user.server).then(result=>{
-                            console.log('my result', result);
+                            if(result.success){
+                                nextState.translation.data = result.data;
+                            }
                             resolve(nextState);
                         })
                     })

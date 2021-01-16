@@ -1,3 +1,5 @@
+import {getDefaultTranslation} from "../api/translation";
+
 export const initialState = {
     progress: {
         cat: '',
@@ -42,5 +44,9 @@ export const initialState = {
         defFields: [],
         survey: {},
         canScan: true
+    },
+    translation: {
+        lang: "en",
+        data: getDefaultTranslation(),
     }
 }

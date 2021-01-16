@@ -13,6 +13,7 @@
     "@react-native-community/masked-view": "0.1.10",
     "@react-navigation/bottom-tabs": "^5.0.0",
     "@react-navigation/native": "latest",
+    "axios": "^0.21.1",
     "expo": "^40.0.0",
     "expo-constants": "~9.3.3",
     "expo-network": "~2.4.0",

@@ -61,6 +61,7 @@ const mapStateToProps = (state) => {
         user: state.userManagement,
         database: state.localDatabase,
         scanStatus: state.scanStatus,
+        translation: state.translationManagement
     };
 };
 const mapDispatchToProps = (dispatch) => {

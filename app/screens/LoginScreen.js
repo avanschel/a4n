@@ -7,13 +7,25 @@ import Button from "../components/graphics/button";
 import {apiLogin, getOfflineData, offlineLogin} from "../api/login";
 import {setLocalParam, setLocalParams} from "../store/actions/actions";
 import ErrorView from "../components/graphics/errorView";
+import {translate} from "../store/reducers/translation";
 
 class LoginScreen extends React.Component {
     connected = true;
-
+    translation = {
+        usernamePlaceHolder:"",
+        serverPlaceHolder:"",
+        passwordPlaceHolder:"",
+        loginBtn:""
+    }
     constructor(props) {
         super(props);
         this.state = {username: this.props.user.username, password: null, server: this.props.user.server};
+        this.translation = {
+            usernamePlaceHolder:translate('login-screen', 'username-placeholder',this.props.translation),
+            serverPlaceHolder:translate('login-screen', 'server-placeholder',this.props.translation),
+            passwordPlaceHolder:translate('login-screen', 'password-placeholder',this.props.translation),
+            loginBtn:translate('login-screen', 'btn-label',this.props.translation)
+        }
     }
 
     login() {
@@ -47,13 +59,13 @@ class LoginScreen extends React.Component {
                             <Logo/>
                         </View>
                         <View style={styles.formContainer}>
-                            <InputText label='server' placeholder="Enter the server url" value={this.props.user.server}
+                            <InputText label='server' placeholder={this.translation.serverPlaceHolder} value={this.props.user.server}
                                        type='text' change={change.bind(this)}/>
-                            <InputText label='user' placeholder="Enter the login" value={this.props.user.username}
+                            <InputText label='user' placeholder={this.translation.usernamePlaceHolder} value={this.props.user.username}
                                        type='text' change={change.bind(this)}/>
-                            <InputText label='lock' placeholder="Enter the password" value={this.props.user.password}
+                            <InputText label='lock' placeholder={this.translation.passwordPlaceHolder} value={this.props.user.password}
                                        type='password' change={change.bind(this)}/>
-                            <Button label='unlock-alt' title="Login" press={() => this.login()} style={styles.button}/>
+                            <Button label='unlock-alt' title={this.translation.loginBtn} press={() => this.login()} style={styles.button}/>
                             <ErrorView error={this.props.user.error.error} message={this.props.user.error.message}/>
                             <ErrorView error={this.props.user.loading.loading}
                                        message={this.props.user.loading.message}/>
@@ -86,7 +98,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
     return {
         user: state.userManagement,
-        database: state.localDatabase
+        database: state.localDatabase,
+        translation: state.translationManagement
     };
 };
 const mapDispatchToProps = (dispatch) => {

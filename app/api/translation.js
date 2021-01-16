@@ -1,4 +1,7 @@
 import {GET_TRANSLATION} from "./api";
+import {defaultTranslation} from "./defaultTransaltion";
+
+const axios = require("axios");
 
 export async function retrieveTranslation(db, server) {
     console.log('je retrieve les langues');
@@ -9,7 +12,7 @@ export async function retrieveTranslation(db, server) {
                 clearAndInsertTranslate(db, result).then((insert) => {
                     getFromTranlsationFromDatabase(db).then((translation) => {
                         console.log('mes transaltions', translation);
-                        resolve({success: true, data: null});
+                        resolve({success: true, data: translation});
                     }).catch((error) => {
                         resolve({success: false, data: error});
                     })
@@ -17,7 +20,13 @@ export async function retrieveTranslation(db, server) {
                     resolve({success: false, data: error});
                 })
             }).catch((error) => {
-                resolve({success: false, data: error});
+                // Aoi can't call ... check if data exist and if not insert a default language
+                console.log('mes error', error);
+                checkDataOrPopulate(db).then((pop) => {
+                    resolve({success: true, data: pop});
+                }).catch((error) => {
+                    resolve({success: false, data: error});
+                })
             })
         }).catch((error) => {
             resolve({success: false, data: error});
@@ -26,23 +35,17 @@ export async function retrieveTranslation(db, server) {
 }
 
 export async function retrieveTranslationFromApi(server) {
-    return new Promise((resolve, reject) => {
-        console.log('my request', server + GET_TRANSLATION);
-        try {
-            fetch(server + GET_TRANSLATION).then(res => {
-                if (!res.ok) {
-                    reject(res.statusText);
-                }
-                let resJson = res.json();
-                console.log('mon resJson', resJson);
-                resolve(resJson);
-            }).catch(err => {
-                reject(err);
-            });
 
-        } catch (err) {
-            reject(err);
-        }
+    return new Promise((resolve, reject) => {
+        axios.get(server + GET_TRANSLATION, {timeout: 15})
+            .then(response => {
+                console.log("promise response", response);
+                resolve(response);
+            })
+            .catch((error) => {
+                console.log("promise reject", error);
+                reject(error);
+            })
     })
 }
 
@@ -99,6 +102,25 @@ export async function getFromTranlsationFromDatabase(db) {
             });
         }
     );
+}
+
+export async function checkDataOrPopulate(db) {
+    return new Promise((resolve, reject) => {
+        getFromTranlsationFromDatabase(db).then((translation) => {
+            if (translation.length > 0) {
+                resolve(translation)
+            } else {
+                resolve(getDefaultTranslation());
+            }
+        }).catch((error) => {
+            reject(error);
+        });
+    });
+
+}
+
+export function getDefaultTranslation() {
+    return defaultTranslation;
 }
 
 /**
