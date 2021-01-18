@@ -8,7 +8,6 @@ export async function retrieveTranslation(db, server) {
     return new Promise(resolve => {
         createTranslationTable(db).then((cr) => {
             retrieveTranslationFromApi(server).then((result) => {
-                console.log("result of api", result);
                 clearAndInsertTranslate(db, result).then((insert) => {
                     getFromTranlsationFromDatabase(db).then((translation) => {
                         console.log('mes transaltions', translation);
@@ -20,8 +19,6 @@ export async function retrieveTranslation(db, server) {
                     resolve({success: false, data: error});
                 })
             }).catch((error) => {
-                // Aoi can't call ... check if data exist and if not insert a default language
-                console.log('mes error', error);
                 checkDataOrPopulate(db).then((pop) => {
                     resolve({success: true, data: pop});
                 }).catch((error) => {
@@ -35,12 +32,12 @@ export async function retrieveTranslation(db, server) {
 }
 
 export async function retrieveTranslationFromApi(server) {
-
+    console.log('call api : '+server + GET_TRANSLATION)
     return new Promise((resolve, reject) => {
-        axios.get(server + GET_TRANSLATION, {timeout: 15})
+        axios.get(server + GET_TRANSLATION, {timeout: 35})
             .then(response => {
-                console.log("promise response", response);
-                resolve(response);
+                console.log("promise response", response.data);
+                resolve(response.data);
             })
             .catch((error) => {
                 console.log("promise reject", error);

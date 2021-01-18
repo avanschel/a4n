@@ -4,7 +4,6 @@ export function translate(screen, key, translationData) {
     const translation = translationData.data.filter((tl) => {
         return tl.screen_id === screen && tl.text_id === key
     });
-    console.log('my translation', translation);
     return (translation.length > 0) ? translation[0].text_title : key;
 }
 
