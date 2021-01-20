@@ -9,14 +9,21 @@ import ChooseTableScreen from "./ChooseTableScreen";
 import {asyncRetrieveAssetsById} from "../../../api/assets";
 import {retrieveFields} from "../../../api/tableDef";
 import {SURV_PREFIX} from "../../../../constante";
+import {translate} from "../../../store/reducers/translation";
 
 class DataScreen extends React.Component {
+    translation;
     constructor(props){
         super(props);
+        this.translation = {
+            loadingMessage: translate('data-screen', 'loading-message', this.props.translation),
+            pleaseWait: translate('data-screen', 'please-wait', this.props.translation),
+            chooseTable: translate('data-screen', 'choose-table', this.props.translation)
+        }
         this.state= {
             openMenu:false,
             loading:true,
-            loadingMessage:'Retrieving list of table',
+            loadingMessage:this.translation.loadingMessage,
             chooseTable:false,
             listTable:[],
             currentTable:false
@@ -52,7 +59,7 @@ class DataScreen extends React.Component {
         }
         if(this.props.database.tables.loading){
             return (
-                <LoadingScreen title={this.state.loadingMessage} message={'please wait'}/>
+                <LoadingScreen title={this.state.loadingMessage} message={this.translation.pleaseWait}/>
             )
         }else{
             if(this.state.openMenu){
@@ -65,7 +72,7 @@ class DataScreen extends React.Component {
                 return (
                     <View style={styles.container}>
                         <View style = {(this.state.currentTable)?styles.wrapper:styles.wrapperBlank}>
-                            <SimpleTextButton show ={true}  title={'CHOOSE TABLE'}  press={()=>this.openChoose()} style={(this.state.currentTable)?styles.btnBordered:styles.btn}/>
+                            <SimpleTextButton show ={true}  title={this.translation.chooseTable}  press={()=>this.openChoose()} style={(this.state.currentTable)?styles.btnBordered:styles.btn}/>
                         </View>
                         <TableList etat={this.state} />
                     </View>
@@ -99,7 +106,8 @@ const styles = StyleSheet.create({
 });
 const mapStateToProps = (state) => {
     return {
-        database : state.localDatabase
+        database : state.localDatabase,
+        translation: state.translationManagement
     };
 };
 const mapDispatchToProps = (dispatch) => {

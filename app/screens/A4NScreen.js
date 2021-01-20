@@ -7,10 +7,17 @@ import LoadingScreen from "./LoadingScreen";
 import {initApplication} from "../store/actions/actions";
 import TabScreen from "./authentificated/TabScreen";
 import {initApp} from "../store/actions/init";
+import {translate} from "../store/reducers/translation";
 
 class A4N extends React.Component {
+
+    translation;
     constructor(props) {
         super(props);
+        this.translation = {
+            dbInitialisation: translate('general-screen', 'db-init', this.props.translation),
+            wait: translate('general-screen', 'wait', this.props.translation)
+        }
         initApp(this.props).then(res => {
             this.props.initApplication({user: res.user, database: res.database});
             this.setState({init: true});
@@ -22,7 +29,7 @@ class A4N extends React.Component {
         if (this.props.database.loading.loading) {
             return (
                 <Provider store={Store}>
-                    <LoadingScreen title={'Database initialization'} message={'please wait'}/>
+                    <LoadingScreen title={this.translation.dbInitialisation} message={this.translation.wait}/>
                 </Provider>
             )
         } else {

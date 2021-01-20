@@ -8,16 +8,28 @@ import * as Network from 'expo-network';
 import {importData} from "../../../api/import";
 import ProgressScreen from "./ProgressScreen";
 import {exportData} from "../../../api/export";
+import translationManagement, {translate} from "../../../store/reducers/translation";
 
 const dimensions = Dimensions.get('window');
 const widthButton = Math.round(dimensions.width * 0.45);
-const importWarning = 'If you launch the import, the current data on the mobile will be erased.';
-const exportWarning = 'If you launch the export, the current data on the mobile will be erased.';
 
 class ImportScreen extends React.Component {
-
+    translation;
     constructor(props) {
         super(props);
+        this.translation = {
+            import: translate('import-screen', 'import', this.props.translation),
+            importWarning: translate('import-screen', 'import-warning', this.props.translation),
+            exportWarning: translate('import-screen', 'export-warning', this.props.translation),
+            export: translate('import-screen', 'export', this.props.translation),
+            importData: translate('import-screen', 'import-data', this.props.translation),
+            exportData: translate('import-screen', 'export-data', this.props.translation),
+            confirming: translate('import-screen', 'confirming', this.props.translation),
+            connectionErrorTitle: translate('import-screen', 'error-title', this.props.translation),
+            connectionErrorContent: translate('import-screen', 'error-content', this.props.translation),
+            ok: translate('import-screen', 'ok', this.props.translation),
+            cancel: translate('import-screen', 'cancel', this.props.translation)
+        }
     }
 
     onPressImport() {
@@ -25,27 +37,27 @@ class ImportScreen extends React.Component {
 
         Network.getNetworkStateAsync().then(res => {
             if (res.isConnected) {
-                Alert.alert("Import", importWarning + '  thank you for confirming',
+                Alert.alert(this.translation.import, this.translation.importWarning + this.translation.confirming,
                     [
                         {
-                            text: 'OK', onPress: () => {
+                            text: this.translation.ok, onPress: () => {
                                 this.startImport()
                             }
                         },
                         {
-                            text: 'Cancel', onPress: () => {
+                            text: this.translation.cancel, onPress: () => {
                             }
                         },
                     ])
             } else {
-                Alert.alert("Connection error", "No internet connection",
+                Alert.alert(this.translation.connectionErrorTitle, this.translation.connectionErrorContent,
                     [
                         {
-                            text: 'OK', onPress: () => {
+                            text: this.translation.ok, onPress: () => {
                             }
                         },
                         {
-                            text: 'Cancel', onPress: () => {
+                            text: this.translation.cancel, onPress: () => {
                             }
                         },
                     ])
@@ -62,60 +74,32 @@ class ImportScreen extends React.Component {
 
         Network.getNetworkStateAsync().then(res => {
             if (res.isConnected) {
-                Alert.alert("Export", exportWarning + '  thank you for confirming',
+                Alert.alert(this.translation.export, this.translation.exportWarning + this.translation.confirming,
                     [
                         {
-                            text: 'OK', onPress: () => {
+                            text: this.translation.ok, onPress: () => {
                                 this.startExport()
                             }
                         },
                         {
-                            text: 'Cancel', onPress: () => {
+                            text: this.translation.cancel, onPress: () => {
                             }
                         },
                     ])
             } else {
-                Alert.alert("Connection error", "No internet connection",
+                Alert.alert(this.translation.connectionErrorTitle, this.translation.connectionErrorContent,
                     [
                         {
-                            text: 'OK', onPress: () => {
+                            text: this.translation.ok, onPress: () => {
                             }
                         },
                         {
-                            text: 'Cancel', onPress: () => {
+                            text: this.translation.cancel, onPress: () => {
                             }
                         },
                     ])
             }
         })
-        /*
-        let aProm =  new Promise(
-            function(resolve,reject){
-                NetInfo.fetch()  
-        
-                    if (netStatus === 'none' || netStatus === 'NONE') {
-                        Alert.alert("Internet not connected.!!!")
-                        return []
-                    }else{ 
-                        Alert.alert("Internet connected.!!! ")
-                    }
-                    
-
-        });
-        aProm.then((dataParam)=>{
-            Alert.alert("Export",exportWarning+'  thank you for confirming',
-            [
-                {text: 'OK', onPress: () => { this.startExport()}},
-                {text: 'Cancel', onPress: () => { }},
-            ] );
-        }
-    )
-/*
-        Alert.alert("Export",exportWarning+'  thank you for confirming',
-            [
-                {text: 'OK', onPress: () => { this.startExport()}},
-                {text: 'Cancel', onPress: () => { }},
-            ] );*/
     }
 
     startExport() {
@@ -134,22 +118,22 @@ class ImportScreen extends React.Component {
                     <View style={styles.wrapper}>
                         <View style={styles.container}>
                             <Text style={styles.title}>Import</Text>
-                            <Text>{importWarning}</Text>
+                            <Text>{this.translation.importWarning}</Text>
                             <View style={styles.br}/>
                             <Text style={styles.title}>Export</Text>
-                            <Text>{exportWarning}</Text>
+                            <Text>{this.translation.exportWarning}</Text>
                         </View>
                         <View style={styles.buttonArea}>
                             <TouchableWithoutFeedback onPress={() => this.onPressImport()}>
                                 <View style={[styles.baseInput]}>
                                     <AntDesign name={'arrowdown'} style={[styles.icon]}/>
-                                    <Text style={[styles.input]}>{'IMPORT DATA'} </Text>
+                                    <Text style={[styles.input]}>{this.translation.importData} </Text>
                                 </View>
                             </TouchableWithoutFeedback>
                             <TouchableWithoutFeedback onPress={() => this.onPressExport()}>
                                 <View style={[styles.baseInput]}>
                                     <AntDesign name={'arrowup'} style={[styles.icon]}/>
-                                    <Text style={[styles.input]}>{'EXPORT DATA'} </Text>
+                                    <Text style={[styles.input]}>{this.translation.exportData} </Text>
                                 </View>
                             </TouchableWithoutFeedback>
                         </View>
@@ -218,7 +202,8 @@ const mapStateToProps = (state) => {
     return {
         progress: state.progressManagement,
         user: state.userManagement,
-        database: state.localDatabase
+        database: state.localDatabase,
+        translation: state.translationManagement
     };
 };
 const mapDispatchToProps = (dispatch) => {
