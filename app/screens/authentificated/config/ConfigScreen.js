@@ -40,7 +40,7 @@ class ConfigScreen extends React.Component {
                 </View>
                 <View style={styles.lastLine}>
                     <Text style={styles.title}>{this.translation.applicationVersion} </Text>
-                    <Text style={styles.val}>v1.4.2 BETA 21-01-12</Text>
+                    <Text style={styles.val}>v1.4.2.01-02-21</Text>
                 </View>
             </View></ScrollView>
         )

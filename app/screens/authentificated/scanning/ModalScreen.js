@@ -42,32 +42,9 @@ class ModalScreen extends React.Component {
 
     Header() {
         let header;
-        switch (this.props.table) {
-            case 'bl':
-                this.header = [{ml_heading: 'Code bât', field_name: 'bl_id'}, {ml_heading: 'Nom', field_name: 'name'}];
-                this.nbItems = 2;
-                break;
-
-            case 'fl':
-                this.header = [{ml_heading: 'Code bât', field_name: 'bl_id'}, {
-                    ml_heading: 'Code étage',
-                    field_name: 'fl_id'
-                }];
-                this.nbItems = 2;
-                break;
-
-            case 'rm':
-                this.header = [{ml_heading: 'Code bât', field_name: 'bl_id'}, {
-                    ml_heading: 'Code étage',
-                    field_name: 'fl_id'
-                }, {ml_heading: 'Code local', field_name: 'rm_id'}];
-                this.nbItems = 3;
-                break;
-            default:
-                header = [];
-                this.nbItems = 0;
-
-        }
+        console.log('props header', this.props.header);
+        this.header = this.props.header.headers;
+        this.nbItems = this.props.header.cells;
         this.setWidthOfFlatList();
     }
 
@@ -142,11 +119,13 @@ class ModalScreen extends React.Component {
             this.filteredData = this.props.data;
         }
     }
-    chooseLine(item){
+
+    chooseLine(item) {
         this.setState({filters: {}});
         this.needToReload = true;
         this.props.press(this.props.table, item);
     }
+
     close() {
         this.setState({filters: {}});
         this.needToReload = true;

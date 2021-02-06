@@ -2,9 +2,11 @@ import React from 'react';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
 import {connect} from 'react-redux';
 import {AntDesign} from '@expo/vector-icons';
-import {asyncRetrieveAssetsLimit} from "../../../api/assets";
+import {asyncRetrieveAssetsById, asyncRetrieveAssetsLimit} from "../../../api/assets";
 import ModalScreen from "./ModalScreen";
 import {editContainer} from "../../../api/scan";
+import {translate} from "../../../store/reducers/translation";
+import {retrieveFields} from "../../../api/tableDef";
 
 class ContainerScreen extends React.Component {
     blData = [];
@@ -13,22 +15,58 @@ class ContainerScreen extends React.Component {
     filterFlData = [];
     rmData = [];
     filterRmData = [];
+    translation;
+    mlHeading=[];
 
     constructor(props) {
         super(props);
-        this.state = {tableModal: null, showModal: false, titleModal: null, dataModal: null};
+        this.state = {tableModal: null, showModal: false, titleModal: null, dataModal: null,header: null};
         asyncRetrieveAssetsLimit(this.props.database.db, 'bl', null, null, null, null, null).then(bl => {
             asyncRetrieveAssetsLimit(this.props.database.db, 'fl', null, null, null, null, null).then(fl => {
                 asyncRetrieveAssetsLimit(this.props.database.db, 'rm', null, null, null, null, null).then(rm => {
-                    this.blData = bl;
-                    this.filterBlData = bl;
-                    this.flData = fl;
-                    this.filterFlData = fl;
-                    this.rmData = rm;
-                    this.filterRmData = rm;
+                    asyncRetrieveAssetsById(this.props.database.db, "afm_flds", "table_name", 'bl', "display_order asc").then(blMlHeading => {
+                        let currentHeader = retrieveFields('bl', blMlHeading);
+                        this.mlHeading.push({
+                            table: 'bl',
+                            headers: currentHeader.fields,
+                            cells: currentHeader.fields.length
+                        });
+                        asyncRetrieveAssetsById(this.props.database.db, "afm_flds", "table_name", 'fl', "display_order asc").then(flMlHeading => {
+                            let currentHeader = retrieveFields('fl', flMlHeading);
+                            this.mlHeading.push({
+                                table: 'fl',
+                                headers: currentHeader.fields,
+                                cells: currentHeader.fields.length
+                            });
+                            asyncRetrieveAssetsById(this.props.database.db, "afm_flds", "table_name", 'rm', "display_order asc").then(rmMlHeading => {
+                                let currentHeader = retrieveFields('rm', rmMlHeading);
+                                this.mlHeading.push({
+                                    table: 'rm',
+                                    headers: currentHeader.fields,
+                                    cells: currentHeader.fields.length
+                                });
+                                this.blData = bl;
+                                this.filterBlData = bl;
+                                this.flData = fl;
+                                this.filterFlData = fl;
+                                this.rmData = rm;
+                                this.filterRmData = rm;
+                            });
+                        });
+                    });
                 });
             });
         });
+
+        this.translation = {
+            chooseBuilding: translate('container-screen', 'choose-building', this.props.translation),
+            chooseFloor: translate('container-screen', 'choose-floor', this.props.translation),
+            chooseRoom: translate('container-screen', 'choose-room', this.props.translation),
+            chooseTable: translate('container-screen', 'choose-room-title', this.props.translation),
+            buildingCode: translate('container-screen', 'code-building', this.props.translation),
+            floorCode: translate('container-screen', 'code-floor', this.props.translation),
+            roomCode: translate('container-screen', 'code-room', this.props.translation),
+        }
     }
 
     filterBl(value) {
@@ -159,8 +197,9 @@ class ContainerScreen extends React.Component {
                 this.setState({
                     tableModal: 'bl',
                     showModal: true,
-                    titleModal: 'Choisir un bâtiment',
-                    dataModal: this.filterBlData
+                    titleModal: this.translation.chooseBuilding,
+                    dataModal: this.filterBlData,
+                    header: this.mlHeading.filter(ml => ml.table === 'bl')[0]
                 });
                 break;
 
@@ -169,8 +208,9 @@ class ContainerScreen extends React.Component {
                 this.setState({
                     tableModal: 'fl',
                     showModal: true,
-                    titleModal: 'Choisir un étage',
-                    dataModal: this.filterFlData
+                    titleModal: this.translation.chooseFloor,
+                    dataModal: this.filterFlData,
+                    header: this.mlHeading.filter(ml => ml.table === 'fl')[0]
                 });
                 break;
 
@@ -179,8 +219,9 @@ class ContainerScreen extends React.Component {
                 this.setState({
                     tableModal: 'rm',
                     showModal: true,
-                    titleModal: 'Choisir une pièce',
-                    dataModal: this.filterRmData
+                    titleModal: this.translation.chooseRoom,
+                    dataModal: this.filterRmData,
+                    header: this.mlHeading.filter(ml => ml.table === 'rm')[0]
                 });
                 break;
         }
@@ -214,12 +255,6 @@ class ContainerScreen extends React.Component {
     }
 
     onBlur(table) {
-        /*
-        checkBlFlRm(this.props.database.db,table,this.props.scanStatus.container).then(res=>{
-            if(!res.good){
-                alert(res.message);
-            }
-        })*/
     }
 
     render() {
@@ -227,10 +262,10 @@ class ContainerScreen extends React.Component {
             return (
                 <View style={{flex: 1}}>
                     <ModalScreen show={this.state.showModal} table={this.state.tableModal} title={this.state.titleModal}
-                                 data={this.state.dataModal} press={(table, value) => this.closeModal(table, value)}/>
-                    <Text style={styles.header}>CHOISIR UN LOCAL</Text>
+                                 data={this.state.dataModal} header={this.state.header} press={(table, value) => this.closeModal(table, value)}/>
+                    <Text style={styles.header}>{this.translation.chooseTable}</Text>
                     <View>
-                        <Text style={styles.label}>Code bât</Text>
+                        <Text style={styles.label}>{this.translation.buildingCode}</Text>
                         <View style={styles.textInput}>
                             <TextInput style={styles.textInputinput} value={this.props.scanStatus.container.bl_id}
                                        onChangeText={(input) => {
@@ -242,7 +277,7 @@ class ContainerScreen extends React.Component {
                         </View>
                     </View>
                     <View>
-                        <Text style={styles.label}>Code étage</Text>
+                        <Text style={styles.label}>{this.translation.floorCode}</Text>
                         <View style={styles.textInput}>
                             <TextInput style={styles.textInputinput} value={this.props.scanStatus.container.fl_id}
                                        onBlur={(input) => {
@@ -256,7 +291,7 @@ class ContainerScreen extends React.Component {
                         </View>
                     </View>
                     <View>
-                        <Text style={styles.label}>Code local</Text>
+                        <Text style={styles.label}>{this.translation.roomCode}</Text>
                         <View style={styles.textInput}>
                             <TextInput style={styles.textInputinput} value={this.props.scanStatus.container.rm_id}
                                        onBlur={(input) => {
@@ -316,7 +351,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
     return {
         scanStatus: state.scanStatus,
-        database: state.localDatabase
+        database: state.localDatabase,
+        translation: state.translationManagement
     };
 };
 const mapDispatchToProps = (dispatch) => {

@@ -3,15 +3,25 @@ import {PROGRESS_RUNNING, PROGRESS_UPDATE} from "../store/actions/actions";
 import {eraseTable, getNbElementForTable} from "./database";
 import {SURV_PREFIX} from "../../constante";
 import {SEND_DATA_TO_SERVER} from "./api";
+import {translate} from "../store/reducers/translation";
 
-export async function exportData(db, server, dispatch, state) {
+export async function exportData(db, server, dispatch, state, translation) {
+    const translateTxt = {
+        exportFinished: translate('import-screen', 'export-finished', translation),
+        exportFinishedText: translate('import-screen', 'export-finished-txt', translation),
+        exportInProgress: translate('import-screen', 'export-in-progress', translation),
+        exportRetrieveTableDef: translate('import-screen', 'export-retrieve-table-def', translation),
+        exportStartLaunch: translate('import-screen', 'export-start-launch', translation),
+        exportLaunchDataFor: translate('import-screen', 'export-launch-data-for', translation),
+        exportSendDataFor: translate('import-screen', 'export-data-send', translation)
+    }
     state = {
         loading: true,
         button: false,
         error: false,
         errorMessage: null,
-        cat: 'EXPORT FINISHED',
-        text: 'Export is finished with success',
+        cat: translateTxt.exportFinished,
+        text: translateTxt.exportFinishedText,
         percent: 100
     };
     dispatch({type: PROGRESS_RUNNING, state: state});
@@ -22,31 +32,31 @@ export async function exportData(db, server, dispatch, state) {
             button: false,
             error: false,
             errorMessage: null,
-            cat: 'EXPORT IN PROGRESS',
-            text: 'Retrieve tables definition',
+            cat: translateTxt.exportInProgress,
+            text: translateTxt.exportRetrieveTableDef,
             percent: 10
         };
         dispatch({type: PROGRESS_UPDATE, state: state});
-        retrieveAndDataTable(db, state, dispatch).then(data => {
+        retrieveAndDataTable(db, state, dispatch, translateTxt).then(data => {
             state = {
                 loading: true,
                 button: false,
                 error: false,
                 errorMessage: null,
-                cat: 'EXPORT IN PROGRESS',
-                text: 'Start launch data',
+                cat: translateTxt.exportInProgress,
+                text: translateTxt.exportStartLaunch,
                 percent: state.percent
             };
             dispatch({type: PROGRESS_UPDATE, state: state});
-            launchSendDataToServer(db, server, dispatch, state, data).then(
+            launchSendDataToServer(db, server, dispatch, state, data, translateTxt).then(
                 res => {
                     state = {
                         loading: true,
                         button: true,
                         error: false,
                         errorMessage: null,
-                        cat: 'EXPORT FINISHED',
-                        text: 'Export is finished with success',
+                        cat: translateTxt.exportFinished,
+                        text: translateTxt.exportFinishedText,
                         percent: 100
                     };
                     dispatch({type: PROGRESS_UPDATE, state: state});
@@ -56,10 +66,10 @@ export async function exportData(db, server, dispatch, state) {
     });
 }
 
-export async function retrieveAndDataTable(db, state, dispatch) {
+export async function retrieveAndDataTable(db, state, dispatch, translateTxt) {
     return new Promise(resolve => {
         getNbElementForTable(db).then(nbBloc => {
-            retrieveDataFromLocalTable(db, nbBloc, state, dispatch).then(res => {
+            retrieveDataFromLocalTable(db, nbBloc, state, dispatch, translateTxt).then(res => {
                 resolve(res);
             });
         })
@@ -67,7 +77,7 @@ export async function retrieveAndDataTable(db, state, dispatch) {
     })
 }
 
-export async function retrieveDataFromLocalTable(db, tables, state, dispatch) {
+export async function retrieveDataFromLocalTable(db, tables, state, dispatch, translateTxt) {
     let data = [];
     let percent = state.percent;
     let percentStep = 40 / tables.length;
@@ -78,8 +88,8 @@ export async function retrieveDataFromLocalTable(db, tables, state, dispatch) {
             button: false,
             error: false,
             errorMessage: null,
-            cat: 'EXPORT IN PROGRESS',
-            text: 'Launch data for ' + table.table_name + SURV_PREFIX,
+            cat: translateTxt.exportInProgress,
+            text: translateTxt.exportLaunchDataFor + ' ' + table.table_name + SURV_PREFIX,
             percent: percent
         };
         dispatch({type: PROGRESS_UPDATE, state: state});
@@ -91,7 +101,7 @@ export async function retrieveDataFromLocalTable(db, tables, state, dispatch) {
     return data;
 }
 
-export async function launchSendDataToServer(db, server, dispatch, state, tables, data) {
+export async function launchSendDataToServer(db, server, dispatch, state, tables, data, translateTxt) {
     let percent = state.percent;
     let percentStep = 40 / tables.length;
     for (let table of tables) {
@@ -102,8 +112,8 @@ export async function launchSendDataToServer(db, server, dispatch, state, tables
                 button: false,
                 error: false,
                 errorMessage: null,
-                cat: 'EXPORT IN PROGRESS',
-                text: 'Send data for ' + table.table,
+                cat: translateTxt.exportInProgress,
+                text: translateTxt.exportSendDataFor + ' ' + table.table,
                 percent: percent
             };
             dispatch({type: PROGRESS_UPDATE, state: state});

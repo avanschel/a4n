@@ -41,7 +41,10 @@ class FormModalScreen extends React.Component {
     }
 
     Header() {
-        let header;
+        console.log('props header', this.props.header);
+        this.header = this.props.header.headers;
+        this.nbItems = this.props.header.cells;
+        /*
         switch (this.props.table) {
             case 'bl':
                 this.header = [{ml_heading: 'Code bât', field_name: 'bl_id'}, {ml_heading: 'Nom', field_name: 'name'}];
@@ -81,7 +84,7 @@ class FormModalScreen extends React.Component {
                 header = [];
                 this.nbItems = 0;
 
-        }
+        }*/
         this.setWidthOfFlatList();
     }
 
@@ -155,11 +158,13 @@ class FormModalScreen extends React.Component {
             this.filteredData = this.props.data;
         }
     }
-    chooseLine(item){
+
+    chooseLine(item) {
         this.setState({filters: {}});
         this.needToReload = true;
         this.props.press(this.props.table, item);
     }
+
     close() {
         this.setState({filters: {}});
         this.needToReload = true;
@@ -177,7 +182,7 @@ class FormModalScreen extends React.Component {
                             this.props.press(this.props.table, 'title');
                         }}>{this.props.title.toUpperCase()}</Text>
                         <AntDesign name={'close'} style={[styles.icon]} onPress={() => {
-                           this.close()
+                            this.close()
                         }}/>
                     </View>
                     <ScrollView horizontal style={{flex: 1}}

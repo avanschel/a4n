@@ -25,6 +25,7 @@ class ManualModeScanning extends React.Component {
             showForm: false
 
         }
+        console.log('mon state', this.state.scanVal);
     }
 
     UNSAFE_componentWillReceiveProps(props) {

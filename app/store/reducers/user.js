@@ -3,33 +3,43 @@ import {LOGIN_SUCCESS, LOGIN_ERROR, LOGIN_PENDING, LOGOUT, SET_LOCAL_PARAM, SET_
 import {setParameter} from "../actions/user";
 import {initialState} from "../initialState";
 import {setLocalParams} from "../../api/database";
+import {translate} from "./translation";
 function userManagement(state=initialState.user,action){
+    const translation = initialState.translation;
+
+    const translateTxt= {
+        loginError: translate('login-screen', 'login-error',translation),
+        tryConnect: translate('login-screen', 'try-connect',translation),
+        errorConnect: translate('login-screen', 'error-connect',translation),
+        badCredential: translate('login-screen', 'bad-credential',translation),
+        cantConnect: translate('login-screen', 'cant-connect',translation),
+    }
     let nextState;
     let error;
     let loading;
     let logged;
     switch(action.type){
         case LOGIN_PENDING:
-            error = {error:false,title:'Login error',message:'An error occured while tryin to connect.'};
-            nextState = {...state,error:error,loading:{loading:true,message:'Trying to connect...'}};
+            error = {error:false,title:translateTxt.loginError,message:translateTxt.errorConnect};
+            nextState = {...state,error:error,loading:{loading:true,message:translateTxt.tryConnect}};
             return nextState;
         case LOGIN_SUCCESS:
             if(action.data.hasOwnProperty('auth')){
                 if(action.data.auth ==='KO'){
                     logged=false;
-                    error = {error:true,title:'Login error',message:'The server is good, but bad credentials'};
+                    error = {error:true,title:translateTxt.loginError,message:translateTxt.badCredential};
                 }else{
                     logged=true;
-                    error = {error:false,title:'Login error',message:'The server is good, but bad credentials'};
+                    error = {error:false,title:translateTxt.loginError,message:translateTxt.badCredential};
                 }
             }else{
                 logged=false;
-                error = {error:true,title:'Login error',message:'The server is good, but bad credentials'};
+                error = {error:true,title:translateTxt.loginError,message:translateTxt.badCredential};
             }
             nextState = {...state,logged:logged,loading:{loading:false,message:null},error:error};
             return nextState;
         case LOGIN_ERROR:
-            error = {error:true,title:'Login error',message:"Can't connect to server."};
+            error = {error:true,title:translateTxt.loginError,message:translateTxt.cantConnect};
             nextState = {...state,loading:{loading:false,message:null},error:error};
             return nextState;
         case LOGOUT:

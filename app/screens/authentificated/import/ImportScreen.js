@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text, View, TouchableWithoutFeedback, KeyboardAvoidingView, Alert, Dimensions} from 'react-native';
+import {Alert, Dimensions, KeyboardAvoidingView, StyleSheet, Text, TouchableWithoutFeedback, View} from 'react-native';
 import {connect} from 'react-redux'
 import {setLocalParams} from "../../../store/actions/actions";
 import {AntDesign} from "@expo/vector-icons";
@@ -8,13 +8,14 @@ import * as Network from 'expo-network';
 import {importData} from "../../../api/import";
 import ProgressScreen from "./ProgressScreen";
 import {exportData} from "../../../api/export";
-import translationManagement, {translate} from "../../../store/reducers/translation";
+import {translate} from "../../../store/reducers/translation";
 
 const dimensions = Dimensions.get('window');
 const widthButton = Math.round(dimensions.width * 0.45);
 
 class ImportScreen extends React.Component {
     translation;
+
     constructor(props) {
         super(props);
         this.translation = {
@@ -66,7 +67,7 @@ class ImportScreen extends React.Component {
     }
 
     startImport() {
-        this.props.importData(this.props.database.db, this.props.user.server, this.props.progress).then(res => {
+        this.props.importData(this.props.database.db, this.props.user.server, this.props.progress, this.props.translation).then(res => {
         });
     }
 
@@ -103,7 +104,7 @@ class ImportScreen extends React.Component {
     }
 
     startExport() {
-        this.props.exportData(this.props.database.db, this.props.user.server, this.props.progress).then(res => {
+        this.props.exportData(this.props.database.db, this.props.user.server, this.props.progress, this.props.translation).then(res => {
         });
     }
 
@@ -208,11 +209,11 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = (dispatch) => {
     return {
-        importData: async (db, server, state) => {
-            return await dispatch(importData(db, server, dispatch, state))
+        importData: async (db, server, state, translation) => {
+            return await dispatch(importData(db, server, dispatch, state, translation))
         },
-        exportData: async (db, server, state) => {
-            return await dispatch(exportData(db, server, dispatch, state))
+        exportData: async (db, server, state, translation) => {
+            return await dispatch(exportData(db, server, dispatch, state, translation))
         },
         setParams: (db, params) => dispatch(setLocalParams(db, params))
     };

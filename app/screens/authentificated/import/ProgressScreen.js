@@ -4,10 +4,15 @@ import {connect} from 'react-redux'
 import {MaterialIcons} from "@expo/vector-icons";
 import FullButon from "../../../components/graphics/fullButon";
 import {endProgress} from "../../../store/actions/actions";
+import {translate} from "../../../store/reducers/translation";
 
 class ProgressScreen extends React.Component {
+    translation;
     constructor(props) {
         super(props);
+        this.translation = {
+            ok: translate('import-screen', 'ok', this.props.translationManagement)
+        }
     }
 
     closeScreen() {
@@ -26,7 +31,7 @@ class ProgressScreen extends React.Component {
                     <View
                         style={[styles.progressFill, {width: (isNaN(this.props.progress.percent) ? '10 %' : this.props.progress.percent + '%')}]}/>
                 </View>
-                <FullButon show={this.props.progress.button} label='check' title="Ok!" press={() => this.closeScreen()}
+                <FullButon show={this.props.progress.button} label='check' title={this.translation.ok} press={() => this.closeScreen()}
                            style={styles.btnClose}/>
             </View>
         )

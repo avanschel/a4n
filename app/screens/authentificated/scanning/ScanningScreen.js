@@ -9,6 +9,7 @@ import {SCAN_FOUND_AND_IDENTICAL, SCAN_FOUND_ERROR, SCAN_FOUND_WITH_DIFF, SCAN_N
 import ScanerModeScan from "./ScannerModeScanning";
 import {asyncRetrieveAssetsById} from "../../../api/assets";
 import ManualModeScanning from "./ManualModeScanning";
+import {translate} from "../../../store/reducers/translation";
 
 class ScanningScreen extends React.Component {
     soundOK = null;
@@ -16,6 +17,7 @@ class ScanningScreen extends React.Component {
     soundNew = null;
     soundError = null;
     soundLoaded = false;
+    translation;
 
     constructor(props) {
         super(props);
@@ -28,6 +30,17 @@ class ScanningScreen extends React.Component {
         } else {
             this.state = {showRoom: true, showScan: false, showManual: false, focusOn: false, modeScan: 'ta'}
         }
+
+        this.translation = {
+            saveStandardNotExist: translate('scan-screen', 'save-standard-not-exist', this.props.translation),
+            errorSave: translate('scan-screen', 'save-error', this.props.translation),
+            error: translate('scan-screen', 'error', this.props.translation),
+            localNotFilled: translate('scan-screen', 'local-not-filled', this.props.translation),
+            noSurvey: translate('scan-screen', 'no-survey', this.props.translation),
+            building: translate('scan-screen', 'bien', this.props.translation),
+            room: translate('scan-screen', 'room', this.props.translation),
+            manual: translate('scan-screen', 'manual', this.props.translation),
+        }
     }
 
     async loadSounds() {
@@ -35,16 +48,16 @@ class ScanningScreen extends React.Component {
             await Audio.setIsEnabledAsync(true);
             this.soundOK = new Audio.Sound();
             await this.soundOK.loadAsync(require('../../../../assets/sound/normal_1.wav'));
-            await this.soundOK.setVolumeAsync(0.6);
+            await this.soundOK.setVolumeAsync(1);
             this.soundChanged = new Audio.Sound();
             await this.soundChanged.loadAsync(require('../../../../assets/sound/changed_2.wav'));
-            await this.soundChanged.setVolumeAsync(0.5);
+            await this.soundChanged.setVolumeAsync(1);
             this.soundNew = new Audio.Sound();
             await this.soundNew.loadAsync(require('../../../../assets/sound/new_1.wav'));
-            await this.soundNew.setVolumeAsync(0.5);
+            await this.soundNew.setVolumeAsync(1);
             this.soundError = new Audio.Sound();
             await this.soundError.loadAsync(require('../../../../assets/sound/error_1.wav'));
-            await this.soundError.setVolumeAsync(0.6);
+            await this.soundError.setVolumeAsync(1);
             return true;
         } catch (error) {
             console.error(error);
@@ -123,10 +136,10 @@ class ScanningScreen extends React.Component {
                 this.controlRoom(this.props.scanStatus.survey).then(res => {
                     if (res.good) {
                         if (this.props.scanStatus.survey.hasOwnProperty('fn_std') && this.props.scanStatus.survey['fn_std'].length > 0) {
-                            console.log('j ai du fnstd');
+
                             asyncRetrieveAssetsById(this.props.database.db, 'fnstd', 'fn_std', this.props.scanStatus.survey['fn_std'], null).then(res => {
                                 if (res.length === 0) {
-                                    alert('Erreur lors de l\'enregistrement : le standard de bien renseigné n\'existe pas');
+                                    alert(this.translation.saveStandardNotExist);
                                 } else {
                                     //Can scan if all required are filled ==> save and scan new .
                                     this.props.saveSurvey(this.props.database.db, this.props.database, this.props.scanStatus, this.props.user.username, this.state.modeScan).then(res => {
@@ -143,7 +156,6 @@ class ScanningScreen extends React.Component {
 
                             //Can scan if all required are filled ==> save and scan new .
                             this.props.saveSurvey(this.props.database.db, this.props.database, this.props.scanStatus, this.props.user.username, this.state.modeScan).then(res => {
-                                console.log('save survey', this.props.scanStatus.error);
                                 if (!this.props.scanStatus.error) {
                                     if (val !== null) {
                                         this.props.setCodeBar(this.props.database.db, this.props.scanStatus, val, this.state.modeScan).then((res) => {
@@ -156,18 +168,17 @@ class ScanningScreen extends React.Component {
                             });
                         }
                     } else {
-                        alert('Erreur lors de l\'enregistrement : ' + res.message);
+                        alert(this.translation.errorSave +' ' + res.message);
                     }
                 });
             }
         } else {
-            alert('error');
+            alert(this.translation.error);
             console.log(this.props.scanStatus);
         }
     }
 
     onSave(data) {
-        console.log('my data to save', data);
         this.props.saveSurvey(this.props.database.db, this.props.database, this.props.scanStatus, this.props.user.username, this.state.modeScan).then(res => {
             if (!this.props.scanStatus.error) {
                 this.props.setCodeBar(this.props.database.db, this.props.scanStatus, null, this.state.modeScan).then((res) => {
@@ -227,12 +238,12 @@ class ScanningScreen extends React.Component {
                         resolve(res);
                     });
                 } else {
-                    resolve({good: false, message: 'Aucune information concernant le local n\' a été renseigné!'});
+                    resolve({good: false, message: this.translation.localNotFilled});
                 }
 
 
             } else {
-                resolve({good: true, message: 'Aucun survey en cours'})
+                resolve({good: true, message: this.translation.noSurvey})
             }
         })
     }
@@ -243,17 +254,17 @@ class ScanningScreen extends React.Component {
                 <View style={styles.buttonArea}>
                     <TouchableWithoutFeedback onPress={() => this.onPressRoom()}>
                         <View style={[styles.baseInput]}>
-                            <Text style={[styles.input]}>Pièce </Text>
+                            <Text style={[styles.input]}>{this.translation.room} </Text>
                         </View>
                     </TouchableWithoutFeedback>
                     <TouchableWithoutFeedback onPress={() => this.onPressTa()}>
                         <View style={[styles.baseInput]}>
-                            <Text style={[styles.input]}>Bien</Text>
+                            <Text style={[styles.input]}>{this.translation.building}</Text>
                         </View>
                     </TouchableWithoutFeedback>
                     <TouchableWithoutFeedback onPress={() => this.onPressManuel()}>
                         <View style={[styles.baseInput]}>
-                            <Text style={[styles.input]}>Manuel</Text>
+                            <Text style={[styles.input]}>{this.translation.manual}</Text>
                         </View>
                     </TouchableWithoutFeedback>
                 </View>
@@ -348,7 +359,8 @@ const mapStateToProps = (state) => {
     return {
         user: state.userManagement,
         scanStatus: state.scanStatus,
-        database: state.localDatabase
+        database: state.localDatabase,
+        translation: state.translationManagement
     };
 };
 const mapDispatchToProps = (dispatch) => {

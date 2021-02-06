@@ -3,15 +3,20 @@ import {editContainer} from "../../../api/scan";
 import {connect} from "react-redux";
 import {Dimensions, FlatList, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View} from "react-native";
 import {AntDesign} from "@expo/vector-icons";
+import {translate} from "../../../store/reducers/translation";
 
 
 class SelectorScreen extends React.Component {
     header = [];
     width = Math.round(Dimensions.get('window').width);
     title = '';
+    translation;
 
     constructor(props) {
         super(props);
+        this.translation = {
+            chooseValue: translate('selector-screen', 'choose-value', this.props.translation)
+        }
     }
 
     setWidthOfFlatList() {
@@ -21,7 +26,6 @@ class SelectorScreen extends React.Component {
     keyExtractor = (item, index) => '' + index;
 
     generateLine(item) {
-        console.log('generateLine', item);
         return (<View style={{flexDirection: 'row'}}>
             <TouchableWithoutFeedback key={'vw' + item.value} onPress={() => {
                 this.props.press(this.props.field, item);
@@ -33,12 +37,11 @@ class SelectorScreen extends React.Component {
     render() {
         if (this.props.show) {
             this.setWidthOfFlatList();
-            console.log('my data to', this.props.data);
             return (<View style={styles.container}>
                 <View style={styles.header}>
                     <Text style={[styles.txt]} onPress={() => {
                         this.props.press(this.props.field, null);
-                    }}>{'Choose a value'}</Text>
+                    }}>{this.translation.chooseValue}</Text>
                     <AntDesign name={'close'} style={[styles.icon]} onPress={() => {
                         this.props.press(this.props.field, null);
                     }}/>
@@ -142,7 +145,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
     return {
         scanStatus: state.scanStatus,
-        database: state.localDatabase
+        database: state.localDatabase,
+        translation: state.translationManagement
     };
 };
 const mapDispatchToProps = (dispatch) => {

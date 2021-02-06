@@ -4,13 +4,11 @@ import {defaultTranslation} from "./defaultTransaltion";
 const axios = require("axios");
 
 export async function retrieveTranslation(db, server) {
-    console.log('je retrieve les langues');
     return new Promise(resolve => {
         createTranslationTable(db).then((cr) => {
             retrieveTranslationFromApi(server).then((result) => {
                 clearAndInsertTranslate(db, result).then((insert) => {
                     getFromTranlsationFromDatabase(db).then((translation) => {
-                        console.log('mes transaltions', translation);
                         resolve({success: true, data: translation});
                     }).catch((error) => {
                         resolve({success: false, data: error});
@@ -32,15 +30,12 @@ export async function retrieveTranslation(db, server) {
 }
 
 export async function retrieveTranslationFromApi(server) {
-    console.log('call api : '+server + GET_TRANSLATION)
     return new Promise((resolve, reject) => {
         axios.get(server + GET_TRANSLATION, {timeout: 35})
             .then(response => {
-                console.log("promise response", response.data);
                 resolve(response.data);
             })
             .catch((error) => {
-                console.log("promise reject", error);
                 reject(error);
             })
     })

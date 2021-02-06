@@ -21,6 +21,7 @@ import {
 import {getAssetsFromApiAsync} from "./assets";
 import {SURV_PREFIX} from "../../constante";
 import {retrieveListOfTable} from "./data";
+import {translate} from "../store/reducers/translation";
 
 
 /* Import part ==========================================================================
@@ -35,14 +36,26 @@ import {retrieveListOfTable} from "./data";
         8. is Finished :)
     ======================================================================================= */
 
-export async function importData(db, server, dispatch, state) {
+export async function importData(db, server, dispatch, state,translation) {
+    const translateTxt= {
+        createStructureError: translate('import-screen', 'create-structure-error',translation),
+        importProgress: translate('import-screen', 'import-progress', translation),
+        initStorage: translate('import-screen', 'init-storage', translation),
+        assetRetrieve: translate('import-screen', 'asset-retrieve', translation),
+        createTable: translate('import-screen', 'create-table', translation),
+        retrieveDataSrv: translate('import-screen', 'retrieve-data-srv', translation),
+        success: translate('import-screen', 'success', translation),
+        insert: translate('import-screen', 'insert', translation),
+        finishedTable: translate('import-screen', 'table-finished', translation),
+        insertElement: translate('import-screen', 'insert-element', translation),
+    }
     state = {
         loading: true,
         button: false,
         error: true,
-        errorMessage: 'Error occured while creating structure.',
-        cat: 'IMPORT IN PROGRESS',
-        text: 'Init storage ',
+        errorMessage: translateTxt.createStructureError,
+        cat: translateTxt.importProgress,
+        text: translateTxt.initStorage,
         percent: 5
     };
     dispatch({type: PROGRESS_RUNNING, state: state});
@@ -56,8 +69,8 @@ export async function importData(db, server, dispatch, state) {
                     button: false,
                     error: false,
                     errorMessage: null,
-                    cat: 'IMPORT IN PROGRESS',
-                    text: 'Init storage ',
+                    cat: translateTxt.importProgress,
+                    text: translateTxt.initStorage,
                     percent: 5
                 };
                 dispatch({type: PROGRESS_UPDATE, state: state});
@@ -67,9 +80,9 @@ export async function importData(db, server, dispatch, state) {
                             loading: true,
                             button: false,
                             error: true,
-                            errorMessage: 'Error occured while creating structure.',
-                            cat: 'IMPORT IN PROGRESS',
-                            text: 'Init storage ',
+                            errorMessage: translateTxt.createStructureError,
+                            cat: translateTxt.importProgress,
+                            text: translateTxt.initStorage,
                             percent: 5
                         };
                         dispatch({type: PROGRESS_UPDATE, state: state});
@@ -79,39 +92,39 @@ export async function importData(db, server, dispatch, state) {
                             button: false,
                             error: false,
                             errorMessage: null,
-                            cat: 'IMPORT IN PROGRESS',
-                            text: 'Retrieve assets definitions ',
+                            cat: translateTxt.importProgress,
+                            text: translateTxt.assetRetrieve,
                             percent: 10
                         };
                         dispatch({type: PROGRESS_UPDATE, state: state});
                         // Step 4 and 5
-                        retrieveAllTableDefinitions(db, dispatch, server, state).then(fieldDefinitions => {
+                        retrieveAllTableDefinitions(db, dispatch, server, state,translateTxt).then(fieldDefinitions => {
                             state = {
                                 loading: true,
                                 button: false,
                                 error: false,
                                 errorMessage: null,
-                                cat: 'IMPORT IN PROGRESS',
-                                text: 'Creating table in storage ',
+                                cat: translateTxt.importProgress,
+                                text: translateTxt.createTable,
                                 percent: 50
                             };
                             dispatch({type: PROGRESS_UPDATE, state: state});
                             // Step 6
-                            createAllTables(db, dispatch, state).then(tableDefs => {
+                            createAllTables(db, dispatch, state,translateTxt).then(tableDefs => {
                                 // Step 7
                                 state = {
                                     loading: true,
                                     button: false,
                                     error: false,
                                     errorMessage: null,
-                                    cat: 'IMPORT IN PROGRESS',
-                                    text: 'Retrieving data from server ',
+                                    cat: translateTxt.importProgress,
+                                    text: translateTxt.retrieveDataSrv,
                                     percent: 70
                                 };
                                 dispatch({type: PROGRESS_UPDATE, state: state});
                                 //FINAL STEP HERE
                                 getListOfTableAndCount(db).then(tablesCount => {
-                                    retrieveAndFillTable(db, dispatch, server, state, fieldDefinitions, tablesCount).then(final => {
+                                    retrieveAndFillTable(db, dispatch, server, state, fieldDefinitions, tablesCount,translateTxt).then(final => {
                                         resolve(final);
                                     })
                                 })
@@ -127,9 +140,9 @@ export async function importData(db, server, dispatch, state) {
                     loading: true,
                     button: false,
                     error: true,
-                    errorMessage: 'Error occured while creating structure.',
-                    cat: 'IMPORT IN PROGRESS',
-                    text: 'Init storage ',
+                    errorMessage: translateTxt.createStructureError,
+                    cat: translateTxt.importProgress,
+                    text: translateTxt.initStorage,
                     percent: 5
                 };
                 dispatch({type: PROGRESS_UPDATE, state: state});
@@ -142,8 +155,8 @@ export async function importData(db, server, dispatch, state) {
             button: true,
             error: false,
             errorMessage: null,
-            cat: 'IMPORT IN PROGRESS',
-            text: 'import finished successfully',
+            cat: translateTxt.importProgress,
+            text: translateTxt.success,
             percent: 100
         };
         dispatch({type: PROGRESS_UPDATE, state: state});
@@ -154,8 +167,8 @@ export async function importData(db, server, dispatch, state) {
             button: true,
             error: true,
             errorMessage: error,
-            cat: 'IMPORT IN PROGRESS',
-            text: 'import finished successfully',
+            cat: translateTxt.importProgress,
+            text: translateTxt.success,
             percent: 100
         };
         dispatch({type: PROGRESS_UPDATE, state: state});
@@ -192,12 +205,9 @@ export async function insertAfmFieldInAfmTbl(db, tbl) {
     })
 }
 
-export async function retrieveAllTableDefinitions(db, dispatch, server, state) {
+export async function retrieveAllTableDefinitions(db, dispatch, server, state,translate) {
     return new Promise(resolve => {
         getAssetsFromApiAsync(server, 'afm_flds', 0).then(res => {
-            console.log('----------------------------------------');
-            console.log(res);
-            console.log('----------------------------------------');
             let tableDefsAndFields = {};
             for (let item of res.afm_flds_list) {
                 let key = item.table_name;
@@ -208,14 +218,14 @@ export async function retrieveAllTableDefinitions(db, dispatch, server, state) {
                     tableDefsAndFields[key].push(item.field_name);
                 }
             }
-            insertAfmFldsAssetDef(db, dispatch, state, res.afm_flds_list).then(result => {
+            insertAfmFldsAssetDef(db, dispatch, state, res.afm_flds_list, translate).then(result => {
                 resolve(tableDefsAndFields);
             })
         })
     })
 }
 
-export async function insertAfmFldsAssetDef(db, dispatch, state, data) {
+export async function insertAfmFldsAssetDef(db, dispatch, state, data,translate) {
     let table;
     let percent = 10;
     let fields = ["nbblocrecord", "table_name", "title", "field_name",
@@ -245,8 +255,8 @@ export async function insertAfmFldsAssetDef(db, dispatch, state, data) {
             button: false,
             error: false,
             errorMessage: null,
-            cat: 'IMPORT IN PROGRESS',
-            text: 'Inserting def ' + def.table_name + '.' + def.field_name + ' ',
+            cat: translate.importProgress,
+            text: translate.insert + def.table_name + '.' + def.field_name + ' ',
             percent: percent
         };
         dispatch({type: PROGRESS_UPDATE, state: state});
@@ -254,15 +264,13 @@ export async function insertAfmFldsAssetDef(db, dispatch, state, data) {
     return state;
 }
 
-export async function createAllTables(db, dispatch, state) {
+export async function createAllTables(db, dispatch, state,translate) {
     return new Promise((resolve, reject) => {
         db.transaction(tx => {
             tx.executeSql(
-                    `select distinct table_name
-                     from afm_flds
-                     where table_name <> "afm_flds"`, [],
+                    `select distinct table_name from afm_flds where table_name <> "afm_flds"`, [],
                 (_, {rows: {_array}}) => {
-                    launchCreateTable(db, dispatch, state, _array).then(res => {
+                    launchCreateTable(db, dispatch, state, _array,translate).then(res => {
                         resolve(_array);
                     })
                 }
@@ -273,7 +281,7 @@ export async function createAllTables(db, dispatch, state) {
     });
 }
 
-export async function launchCreateTable(db, dispatch, state, data) {
+export async function launchCreateTable(db, dispatch, state, data,translate) {
     let percent = state.percent;
     for (let i = 0; i < data.length; i++) {
         percent += Math.round(20 / data.length);
@@ -283,14 +291,14 @@ export async function launchCreateTable(db, dispatch, state, data) {
                 button: false,
                 error: false,
                 errorMessage: null,
-                cat: 'IMPORT IN PROGRESS',
-                text: 'Create table ' + data[i].table_name + ' ',
+                cat: translate.importProgress,
+                text: translate.createTable + data[i].table_name + ' ',
                 percent: percent
             };
             dispatch({type: PROGRESS_UPDATE, state: state});
             createTable(db, data[i].table_name).then(result => {
                 createTable(db, data[i].table_name + SURV_PREFIX).then(rs => {
-                    resolve('finished table ' + data[i].table_name)
+                    resolve(translate.finishedTable + data[i].table_name)
                 });
             });
         });
@@ -298,11 +306,11 @@ export async function launchCreateTable(db, dispatch, state, data) {
     return true;
 }
 
-export async function retrieveAndFillTable(db, dispatch, server, state, fieldDefinitions, tablesCount) {
+export async function retrieveAndFillTable(db, dispatch, server, state, fieldDefinitions, tablesCount,translate) {
     return new Promise(resolve => {
         getNbElementForTable(db).then(nbBloc => {
             launchEraseTable(db, server, nbBloc).then(res => {
-                launchRetrieveAndFill(db, server, dispatch, nbBloc, state, fieldDefinitions, tablesCount).then(res => {
+                launchRetrieveAndFill(db, server, dispatch, nbBloc, state, fieldDefinitions, tablesCount,translate).then(res => {
                     resolve(res);
                 })
             })
@@ -325,7 +333,7 @@ export async function launchEraseTable(db, server, nbBloc) {
     return true;
 }
 
-export async function launchRetrieveAndFill(db, server, dispatch, nbBloc, state, fieldDefinitions, tablesCount) {
+export async function launchRetrieveAndFill(db, server, dispatch, nbBloc, state, fieldDefinitions, tablesCount,translate) {
     /* For graphical */
     let elements = 0;
     for (let i = 0; i < tablesCount.length; i++) {
@@ -342,7 +350,7 @@ export async function launchRetrieveAndFill(db, server, dispatch, nbBloc, state,
         for (let i = 0; i < bloc.nbblocrecord; i++) {
             await new Promise(resolve => {
                 getDataFromServer(server, bloc.table_name, i).then(data => {
-                    launchInsertDataToTable(db, bloc.table_name, data, dispatch, percentStep, i, bloc.nbblocrecord, state, fieldDefinitions).then(result => {
+                    launchInsertDataToTable(db, bloc.table_name, data, dispatch, percentStep, i, bloc.nbblocrecord, state, fieldDefinitions, translate).then(result => {
                         state = result;
                         resolve(state);
                     });
@@ -376,13 +384,13 @@ export async function getDataFromServer(server, tbl, blocNb) {
     })
 }
 
-export async function launchInsertDataToTable(db, tableName, dataArray, dispatch, percentStep, current, nbBLoc, state, fieldDefinitions) {
+export async function launchInsertDataToTable(db, tableName, dataArray, dispatch, percentStep, current, nbBLoc, state, fieldDefinitions, translate) {
     let percent = state.percent;
     let text;
     let valuesArray = [];
     percent = Math.round((percent + percentStep) * 100) / 100;
     for (let data of dataArray[tableName + '_list']) {
-        text = 'Insert element to ' + tableName + ' page ' + (current + 1) + '/' + nbBLoc + ' ... ';
+        text = translate.insertElement + ' '+ tableName + ' page ' + (current + 1) + '/' + nbBLoc + ' ... ';
         // Prepare data, because we receive some field that not used into the app.
         let values = [];
         for (let i = 0; i < fieldDefinitions[tableName].length; i++) {
@@ -391,15 +399,6 @@ export async function launchInsertDataToTable(db, tableName, dataArray, dispatch
             values.push(val);
         }
         valuesArray.push(values);
-        /*await new Promise(resolve=>{
-
-            insertDataToTable(db,tableName,fieldDefinitions[tableName],values).then(result=>{
-
-                resolve(result);
-            });
-            state = {loading:true,button:false,error:false,errorMessage:null,cat:'IMPORT IN PROGRESS',text:text,percent:percent};
-            dispatch({type:PROGRESS_UPDATE,state:state});
-        });*/
     }
     await new Promise(resolve => {
         insertDataToTable(db, tableName, fieldDefinitions[tableName], valuesArray).then(result => {
@@ -408,7 +407,7 @@ export async function launchInsertDataToTable(db, tableName, dataArray, dispatch
                 button: false,
                 error: false,
                 errorMessage: null,
-                cat: 'IMPORT IN PROGRESS',
+                cat: translate.importProgress,
                 text: text,
                 percent: percent
             };

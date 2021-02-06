@@ -9,14 +9,14 @@ class ChooseTableScreen extends React.Component {
 
     constructor(props) {
         super(props);
-
-        this.state = {list: this.setList()};
         this.translation = {
             noData: translate('choose-table-screen', 'no-data', this.props.translation),
             element: translate('choose-table-screen', 'element', this.props.translation),
             elements: translate('choose-table-screen', 'elements', this.props.translation),
             chooseTable: translate('choose-table-screen', 'choose-table', this.props.translation)
         }
+
+        this.state = {list: this.setList()};
     }
 
     press(value) {
@@ -34,18 +34,34 @@ class ChooseTableScreen extends React.Component {
     }
 
     setList() {
+        console.log('ma table', this.translation);
         let list = [];
-        for (let i = 0; i < this.props.database.tables.length; i++) {
-            if (this.props.database.tables[i].table_name !== 'afm_flds') {
-                let title = (this.props.database.tables[i].table_name === 'afm_flds') ?
-                    'afm_flds' : this.props.database.tables[i].title;
-                title += (this.props.database.tables[i].table_name === 'afm_flds') ? '' : ' (' + this.props.database.tables[i].table_name + ')';
-                title += ' ' + this.props.database.tables[i].nb_element + ' ';
-                title += (this.props.database.tables[i].nb_element > 1) ? ' ' + this.translation.elements : ' ' + this.translation.element;
-                list.push({key: this.props.database.tables[i].table_name, text: title});
-
+        let tables = this.props.database.tables;
+        let elements = this.translation.elements;
+        let element = this.translation.element;
+        for (let table of tables) {
+            if (table.table_name !== 'afm_flds') {
+                let title = (table.table_name === 'afm_flds') ?
+                    'afm_flds' : table.title;
+                title += (table.table_name === 'afm_flds') ? '' : ' (' + table.table_name + ')';
+                title += ' ' + table.nb_element + ' ';
+                title += (table.nb_element > 1) ? ' ' + elements : ' ' + element;
+                list.push({key: table.table_name, text: title});
             }
         }
+        /*  for (let i = 0; i < this.props.database.tables.length; i++) {
+              if (this.props.database.tables[i].table_name !== 'afm_flds') {
+                  console.log('table', this.props.database.tables[i]);
+                  let title = null;
+                  let title = (this.props.database.tables[i].table_name === 'afm_flds') ?
+                       'afm_flds' : this.props.database.tables[i].title;
+                   title += (this.props.database.tables[i].table_name === 'afm_flds') ? '' : ' (' + this.props.database.tables[i].table_name + ')';
+                   title += ' ' + this.props.database.tables[i].nb_element + ' ';
+                   title += (this.props.database.tables[i].nb_element > 1) ? ' ' + this.translation.elements : ' ' + this.translation.element;
+                  list.push({key: this.props.database.tables[i].table_name, text: title});
+
+              }
+          }*/
         return list;
 
     }

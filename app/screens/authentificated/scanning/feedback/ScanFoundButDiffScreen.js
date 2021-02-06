@@ -2,9 +2,18 @@ import React from 'react';
 import {StyleSheet, Text, View} from "react-native";
 import {connect} from "react-redux";
 import {SCAN_FOUND_WITH_DIFF, SCAN_NOT_FOUND} from "../../../../../constante";
+import {translate} from "../../../../store/reducers/translation";
 class ScanFoundButDiffScreen extends React.Component {
-    constructor(props){
+    translation;
+
+    constructor(props) {
         super(props);
+        this.translation = {
+            building: translate('scan-screen', 'building', this.props.translation),
+            floor: translate('scan-screen', 'floor', this.props.translation),
+            local: translate('scan-screen', 'local', this.props.translation),
+            different: translate('scan-screen', 'different', this.props.translation)
+        }
     }
 
     onPress(){
@@ -15,7 +24,7 @@ class ScanFoundButDiffScreen extends React.Component {
             return (
                 <View  style={styles.container} onPress={()=>this.onPress()}>
                     <View style={styles.bordered}>
-                        <Text>Bât : {this.props.scanStatus.original.bl_id} Et : {this.props.scanStatus.original.fl_id} Loc : {this.props.scanStatus.original.rm_id} Il y a des différences.</Text>
+                        <Text>{this.translation.building} : {this.props.scanStatus.original.bl_id} {this.translation.floor} : {this.props.scanStatus.original.fl_id} {this.translation.local} : {this.props.scanStatus.original.rm_id} {this.translation.different}.</Text>
                     </View>
                 </View>
             )
@@ -38,7 +47,8 @@ const styles = StyleSheet.create({
 });
 const mapStateToProps = (state) => {
     return {
-        scanStatus: state.scanStatus
+        scanStatus: state.scanStatus,
+        translation: state.translationManagement
     };
 };
 export default connect(mapStateToProps)(ScanFoundButDiffScreen)

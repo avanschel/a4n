@@ -71,6 +71,7 @@ export async function asyncRetrieveAssetsByFilter(db,tbl,filter){
     return await asyncRetrieveAssetsLimit(db,tbl,null,null,null,null,filter);
 }
 
+export async function asyncRetrieveMlHeading(){}
 /* asyncRetrieveAssetsLimit ==================
 ============================================= */
 export function asyncRetrieveAssetsLimit(db,tbl,fld,value,pageNum,pageSize,filters,sort){

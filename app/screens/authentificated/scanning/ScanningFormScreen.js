@@ -10,6 +10,8 @@ import {asyncRetrieveAssetsById, asyncRetrieveAssetsLimit} from "../../../api/as
 import {AntDesign} from "@expo/vector-icons";
 import FormModalScreen from "./FormModalScreen";
 import SelectorScreen from "./SelectorScreen";
+import {retrieveFields} from "../../../api/tableDef";
+import {translate} from "../../../store/reducers/translation";
 
 class ScanningFormScreen extends React.Component {
     enumListLabels = {};
@@ -23,6 +25,8 @@ class ScanningFormScreen extends React.Component {
     filterStdData = [];
     change = false;
     stdTableName = 'eq';
+    mlHeading = [];
+    translation;
 
     constructor(props) {
         super(props);
@@ -43,21 +47,71 @@ class ScanningFormScreen extends React.Component {
                 this.enumListLabels[enums[i]["field_name"]] = survey[enums[i]["field_name"]];
             }
         });
+        this.translation = {
+            bien: translate('scan-screen', 'bien', this.props.translation),
+            cancel: translate('scan-screen', 'cancel', this.props.translation),
+            chooseBuilding: translate('scan-screen', 'choose-building', this.props.translation),
+            chooseEqStd: translate('scan-screen', 'choose-eqstd', this.props.translation),
+            chooseFnStd: translate('scan-screen', 'choose-fnstd', this.props.translation),
+            chooseFloor: translate('scan-screen', 'choose-floor', this.props.translation),
+            chooseRoom: translate('scan-screen', 'choose-room', this.props.translation),
+            dontExist: translate('scan-screen', 'dont-exist', this.props.translation),
+            elementNotFound: translate('scan-screen', 'element-not-found', this.props.translation),
+            error: translate('scan-screen', 'error', this.props.translation),
+            fillRequiredField: translate('scan-screen', 'fill-required-field', this.props.translation),
+            localNotFilled: translate('scan-screen', 'local-not-filled', this.props.translation),
+            manual: translate('scan-screen', 'manual', this.props.translation),
+            noSurvey: translate('scan-screen', 'no-survey', this.props.translation),
+            ok: translate('scan-screen', 'ok', this.props.translation),
+            pleaseScan: translate('scan-screen', 'please-scan', this.props.translation),
+            register: translate('scan-screen', 'register', this.props.translation),
+            room: translate('scan-screen', 'room', this.props.translation),
+            saveError: translate('scan-screen', 'save-error', this.props.translation),
+            saveStandardNotExist: translate('scan-screen', 'save-standard-not-exist', this.props.translation),
+            scanDone: translate('scan-screen', 'scan-done', this.props.translation),
+            standardNotFoundPart: translate('scan-screen', 'standard-not-found-part', this.props.translation),
+
+        }
         asyncRetrieveAssetsLimit(this.props.database.db, 'bl', null, null, null, null, null).then(bl => {
             asyncRetrieveAssetsLimit(this.props.database.db, 'fl', null, null, null, null, null).then(fl => {
                 asyncRetrieveAssetsLimit(this.props.database.db, 'rm', null, null, null, null, null).then(rm => {
                     asyncRetrieveAssetsLimit(this.props.database.db, this.stdTableName, null, null, null, null, null).then(fnstd => {
-                        this.blData = bl;
-                        this.filterBlData = bl;
-                        this.flData = fl;
-                        this.filterFlData = fl;
-                        this.rmData = rm;
-                        this.filterRmData = rm;
-                        this.stdData = fnstd;
-                        this.filterStdData = fnstd;
+                        asyncRetrieveAssetsById(this.props.database.db, "afm_flds", "table_name", 'bl', "display_order asc").then(blMlHeading => {
+                            let currentHeader = retrieveFields('bl', blMlHeading);
+                            this.mlHeading.push({
+                                table: 'bl',
+                                headers: currentHeader.fields,
+                                cells: currentHeader.fields.length
+                            });
+                            asyncRetrieveAssetsById(this.props.database.db, "afm_flds", "table_name", 'fl', "display_order asc").then(flMlHeading => {
+                                let currentHeader = retrieveFields('fl', flMlHeading);
+                                this.mlHeading.push({
+                                    table: 'fl',
+                                    headers: currentHeader.fields,
+                                    cells: currentHeader.fields.length
+                                });
+                                asyncRetrieveAssetsById(this.props.database.db, "afm_flds", "table_name", 'rm', "display_order asc").then(rmMlHeading => {
+                                    let currentHeader = retrieveFields('rm', rmMlHeading);
+                                    this.mlHeading.push({
+                                        table: 'rm',
+                                        headers: currentHeader.fields,
+                                        cells: currentHeader.fields.length
+                                    });
+                                    this.blData = bl;
+                                    this.filterBlData = bl;
+                                    this.flData = fl;
+                                    this.filterFlData = fl;
+                                    this.rmData = rm;
+                                    this.filterRmData = rm;
+                                    this.stdData = fnstd;
+                                    this.filterStdData = fnstd;
+                                });
+                            });
+                        });
                     });
                 });
             });
+
         });
     }
 
@@ -123,7 +177,7 @@ class ScanningFormScreen extends React.Component {
                 this.setState({
                     tableModal: 'bl',
                     showMyModal: true,
-                    titleModal: 'Choisir un bâtiment',
+                    titleModal: this.translation.chooseBuilding,
                     dataModal: this.filterBlData
                 });
                 break;
@@ -133,7 +187,7 @@ class ScanningFormScreen extends React.Component {
                 this.setState({
                     tableModal: 'fl',
                     showMyModal: true,
-                    titleModal: 'Choisir un étage',
+                    titleModal: this.translation.chooseFloor,
                     dataModal: this.filterFlData
                 });
                 break;
@@ -143,7 +197,7 @@ class ScanningFormScreen extends React.Component {
                 this.setState({
                     tableModal: 'rm',
                     showMyModal: true,
-                    titleModal: 'Choisir une pièce',
+                    titleModal: this.translation.chooseRoom,
                     dataModal: this.filterRmData
                 });
                 break;
@@ -151,7 +205,7 @@ class ScanningFormScreen extends React.Component {
                 this.setState({
                     tableModal: 'fnstd',
                     showMyModal: true,
-                    titleModal: 'Choisir un standard de bien',
+                    titleModal: this.translation.chooseFnStd,
                     dataModal: this.filterStdData
                 });
                 break;
@@ -159,7 +213,7 @@ class ScanningFormScreen extends React.Component {
                 this.setState({
                     tableModal: 'eqstd',
                     showMyModal: true,
-                    titleModal: 'Choisir un standard d equipement',
+                    titleModal: this.translation.chooseEqStd,
                     dataModal: this.filterStdData
                 });
                 break;
@@ -226,11 +280,11 @@ class ScanningFormScreen extends React.Component {
     }
 
     filterStandard() {
-        if(this.stdTableName === 'eqstd'){
+        if (this.stdTableName === 'eqstd') {
             this.filterStdData = (this.props.scanStatus.survey.eq_std && this.props.scanStatus.survey.eq_std.length) ? this.stdData.filter(item => {
                 return (item.eq_std.startsWith(this.props.scanStatus.survey.eq_std))
             }) : this.stdData;
-        }else{
+        } else {
             this.filterStdData = (this.props.scanStatus.survey.fn_std && this.props.scanStatus.survey.fn_std.length) ? this.stdData.filter(item => {
                 return (item.fn_std.startsWith(this.props.scanStatus.survey.fn_std))
             }) : this.stdData;
@@ -443,10 +497,10 @@ class ScanningFormScreen extends React.Component {
 
     showError() {
 
-        Alert.alert("Vous avez scanné", 'Vous devez remplir les champs *',
+        Alert.alert(this.translation.scanDone, this.translation.fillRequiredField,
             [
                 {
-                    text: 'OK', onPress: () => {
+                    text: this.translation.ok, onPress: () => {
                         this.removeError()
                     }
                 }
@@ -464,10 +518,10 @@ class ScanningFormScreen extends React.Component {
     }
 
     onBlowBlur(table, field) {
-        let message = 'Element non trouvé';
+        let message = this.translation.elementNotFound;
         switch (table) {
             case 'fnstd':
-                message = 'Le standard de bien renseigné (' + this.props.scanStatus.survey[field] + ') n\'existe pas.';
+                message = this.translation.standardNotFoundPart + ' (' + this.props.scanStatus.survey[field] + ') '+ this.translation.dontExist;
                 break;
         }
         if (this.props.scanStatus.survey[field].length > 0) {
@@ -483,7 +537,7 @@ class ScanningFormScreen extends React.Component {
 
                     <View style={styles.main}>
                         <View style={styles.wrapper}>
-                            <Text style={styles.placeHolder}>Veuillez scanner un code barre</Text>
+                            <Text style={styles.placeHolder}>{this.translation.pleaseScan}</Text>
                         </View>
                     </View>
                 )
@@ -493,7 +547,7 @@ class ScanningFormScreen extends React.Component {
                         this.setFilter('bl_id', this.props.scanStatus.survey.bl_id);
                         this.setFilter('fl_id', this.props.scanStatus.survey.fl_id);
                         this.setFilter('rm_id', this.props.scanStatus.survey.rm_id);
-                        this.setFilter('standard',null);
+                        this.setFilter('standard', null);
                     }
                     return (
                         <View style={styles.main}>
@@ -509,19 +563,19 @@ class ScanningFormScreen extends React.Component {
                                 <View style={styles.buttonArea}>
                                     <TouchableWithoutFeedback onPress={() => this.onPressSave()}>
                                         <View style={[styles.baseInput]}>
-                                            <Text style={[styles.input]}>Enregistrer </Text>
+                                            <Text style={[styles.input]}>{this.translation.register} </Text>
                                         </View>
                                     </TouchableWithoutFeedback>
                                     <TouchableWithoutFeedback onPress={() => this.onPressCancel()}>
                                         <View style={[styles.baseInput]}>
-                                            <Text style={[styles.input]}>Annuler</Text>
+                                            <Text style={[styles.input]}>{this.translation.cancel}</Text>
                                         </View>
                                     </TouchableWithoutFeedback>
                                 </View>
                                 {
                                     this.props.scanStatus.error ?
                                         <View style={styles.errorPan}>
-                                            <Text>Vous devez remplir les champs *</Text>
+                                            <Text>{this.translation.fillRequiredField}</Text>
                                         </View>
                                         : false
                                 }
@@ -699,7 +753,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
     return {
         scanStatus: state.scanStatus,
-        database: state.localDatabase
+        database: state.localDatabase,
+        translation: state.translationManagement
     };
 };
 const mapDispatchToProps = (dispatch) => {
