@@ -1,7 +1,5 @@
-import {onLoginPending, onLoginSuccess, onLoginError} from '../store/actions/actions';
+import {onLoginError, onLoginPending, onLoginSuccess} from '../store/actions/actions';
 import {LOGIN_URL} from "./api";
-import {AsyncStorage} from 'react-native';
-import {set} from "react-native-reanimated";
 
 export function offlineLogin(dispatch, server, username, password) {
     let offlineLogin = new Promise(resolve => {
@@ -19,7 +17,6 @@ export async function getOfflineData(db, username, password) {
             tx.executeSql(createParamTableQuery, null,
                 (tr, re) => {
                     let query = 'select *  from login where username ="' + username + '" AND password="' + password + '"';
-                    console.log('my query', query);
                     tx.executeSql(
                         query, [],
                         (_, {rows: {_array}}) => {
@@ -56,7 +53,6 @@ function setOfflineData(db, data) {
                         tx.executeSql(delQuery, null,
                             (tr, re) => {
                                 let insertQuery = "insert into login (username, password) values ('" + data.user.toUpperCase() + "','" + data.pwd.toUpperCase() + "');";
-                                console.log('insert', insertQuery);
                                 tx.executeSql(insertQuery);
                                 resolve({error: false, message: 'finished create field in table'});
                             }
@@ -89,9 +85,6 @@ export function apiLogin(db, dispatch, server, username, password) {
         })
             .then(res => res.json())
             .then(res => {
-                console.log('---------------------------------');
-                console.log('Resultat de login :', res);
-                console.log('---------------------------------');
                 setOfflineData(db, {user: username, pwd: password});
                 dispatch(onLoginSuccess(res));
                 //return res.products;
