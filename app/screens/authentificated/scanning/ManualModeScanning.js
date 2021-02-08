@@ -36,7 +36,7 @@ class ManualModeScanning extends React.Component {
     }
 
     onBlur(value) {
-        this.setState({scanVal: value})
+       this.setState({scanVal: value})
     }
 
     onChange(data) {

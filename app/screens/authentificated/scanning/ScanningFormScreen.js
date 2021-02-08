@@ -97,14 +97,30 @@ class ScanningFormScreen extends React.Component {
                                         headers: currentHeader.fields,
                                         cells: currentHeader.fields.length
                                     });
-                                    this.blData = bl;
-                                    this.filterBlData = bl;
-                                    this.flData = fl;
-                                    this.filterFlData = fl;
-                                    this.rmData = rm;
-                                    this.filterRmData = rm;
-                                    this.stdData = fnstd;
-                                    this.filterStdData = fnstd;
+                                    asyncRetrieveAssetsById(this.props.database.db, "afm_flds", "table_name", 'fnstd', "display_order asc").then(rmMlHeading => {
+                                        let currentHeader = retrieveFields('fnstd', rmMlHeading);
+                                        this.mlHeading.push({
+                                            table: 'fnstd',
+                                            headers: currentHeader.fields,
+                                            cells: currentHeader.fields.length
+                                        });
+                                        asyncRetrieveAssetsById(this.props.database.db, "afm_flds", "table_name", 'eqstd', "display_order asc").then(rmMlHeading => {
+                                            let currentHeader = retrieveFields('eqstd', rmMlHeading);
+                                            this.mlHeading.push({
+                                                table: 'eqstd',
+                                                headers: currentHeader.fields,
+                                                cells: currentHeader.fields.length
+                                            });
+                                            this.blData = bl;
+                                            this.filterBlData = bl;
+                                            this.flData = fl;
+                                            this.filterFlData = fl;
+                                            this.rmData = rm;
+                                            this.filterRmData = rm;
+                                            this.stdData = fnstd;
+                                            this.filterStdData = fnstd;
+                                        });
+                                    });
                                 });
                             });
                         });
@@ -178,7 +194,8 @@ class ScanningFormScreen extends React.Component {
                     tableModal: 'bl',
                     showMyModal: true,
                     titleModal: this.translation.chooseBuilding,
-                    dataModal: this.filterBlData
+                    dataModal: this.filterBlData,
+                    header: this.mlHeading.filter(ml => ml.table === 'bl')[0]
                 });
                 break;
 
@@ -188,7 +205,8 @@ class ScanningFormScreen extends React.Component {
                     tableModal: 'fl',
                     showMyModal: true,
                     titleModal: this.translation.chooseFloor,
-                    dataModal: this.filterFlData
+                    dataModal: this.filterFlData,
+                    header: this.mlHeading.filter(ml => ml.table === 'fl')[0]
                 });
                 break;
 
@@ -198,7 +216,8 @@ class ScanningFormScreen extends React.Component {
                     tableModal: 'rm',
                     showMyModal: true,
                     titleModal: this.translation.chooseRoom,
-                    dataModal: this.filterRmData
+                    dataModal: this.filterRmData,
+                    header: this.mlHeading.filter(ml => ml.table === 'fl')[0]
                 });
                 break;
             case 'fnstd':
@@ -206,7 +225,8 @@ class ScanningFormScreen extends React.Component {
                     tableModal: 'fnstd',
                     showMyModal: true,
                     titleModal: this.translation.chooseFnStd,
-                    dataModal: this.filterStdData
+                    dataModal: this.filterStdData,
+                    header: this.mlHeading.filter(ml => ml.table === 'fnstd')[0]
                 });
                 break;
             case 'eqstd':
@@ -214,7 +234,8 @@ class ScanningFormScreen extends React.Component {
                     tableModal: 'eqstd',
                     showMyModal: true,
                     titleModal: this.translation.chooseEqStd,
-                    dataModal: this.filterStdData
+                    dataModal: this.filterStdData,
+                    header: this.mlHeading.filter(ml => ml.table === 'eqstd')[0]
                 });
                 break;
         }
@@ -593,7 +614,7 @@ class ScanningFormScreen extends React.Component {
 
                             </View>
                             <FormModalScreen show={this.state.showMyModal} table={this.state.tableModal}
-                                             title={this.state.titleModal} data={this.state.dataModal}
+                                             title={this.state.titleModal} data={this.state.dataModal} header={this.state.header}
                                              press={(table, value) => this.closeMyModal(table, value)}/>
                             <SelectorScreen show={this.state.showSelector} field={this.state.fieldSelector}
                                             data={this.state.dataSelector}
