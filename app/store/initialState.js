@@ -18,7 +18,7 @@ export const initialState = {
         currentData: [],
         currentHeader: {fields: []},
         currentPage: 0,
-        dbName: 'A4N_db.db',
+        dbName: 'A4N_db_142.db',
         db: null,
         error: {error: false, title: 'Database error', message: 'An error occured while tryin to create data.'},
         loading: {loading: false, message: null}

@@ -42,7 +42,6 @@ class ModalScreen extends React.Component {
 
     Header() {
         let header;
-        console.log('props header', this.props.header);
         this.header = this.props.header.headers;
         this.nbItems = this.props.header.cells;
         this.setWidthOfFlatList();

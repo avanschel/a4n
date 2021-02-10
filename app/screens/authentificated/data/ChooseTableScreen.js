@@ -34,7 +34,6 @@ class ChooseTableScreen extends React.Component {
     }
 
     setList() {
-        console.log('ma table', this.translation);
         let list = [];
         let tables = this.props.database.tables;
         let elements = this.translation.elements;

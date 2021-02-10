@@ -48,7 +48,8 @@ export async function exportData(db, server, dispatch, state, translation) {
                 percent: state.percent
             };
             dispatch({type: PROGRESS_UPDATE, state: state});
-            launchSendDataToServer(db, server, dispatch, state, data, translateTxt).then(
+            // db, server, dispatch, state, tables, data, translateTxt
+            launchSendDataToServer(db, server, dispatch, state, data, null, translateTxt).then(
                 res => {
                     state = {
                         loading: true,
@@ -61,7 +62,9 @@ export async function exportData(db, server, dispatch, state, translation) {
                     };
                     dispatch({type: PROGRESS_UPDATE, state: state});
                 }
-            )
+            ).catch((err) => {
+                console.log('mon err', err);
+            })
         })
     });
 }

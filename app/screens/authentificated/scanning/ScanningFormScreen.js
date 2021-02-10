@@ -542,7 +542,7 @@ class ScanningFormScreen extends React.Component {
         let message = this.translation.elementNotFound;
         switch (table) {
             case 'fnstd':
-                message = this.translation.standardNotFoundPart + ' (' + this.props.scanStatus.survey[field] + ') '+ this.translation.dontExist;
+                message = this.translation.standardNotFoundPart + ' (' + this.props.scanStatus.survey[field] + ') ' + this.translation.dontExist;
                 break;
         }
         if (this.props.scanStatus.survey[field].length > 0) {
@@ -614,7 +614,8 @@ class ScanningFormScreen extends React.Component {
 
                             </View>
                             <FormModalScreen show={this.state.showMyModal} table={this.state.tableModal}
-                                             title={this.state.titleModal} data={this.state.dataModal} header={this.state.header}
+                                             title={this.state.titleModal} data={this.state.dataModal}
+                                             header={this.state.header}
                                              press={(table, value) => this.closeMyModal(table, value)}/>
                             <SelectorScreen show={this.state.showSelector} field={this.state.fieldSelector}
                                             data={this.state.dataSelector}

@@ -77,7 +77,6 @@ class TableList extends React.Component {
         }
         let nbPage = (elem) ? Math.ceil(elem.nb_element / 20) : 0;
 
-        console.log('['+this.props.database.currentTable+'] filter :'+stringFilter+' / nbPage :'+nbPage);
         if (reset || this.props.database.currentPage < nbPage) {
             await asyncRetrieveAssetsLimit(this.props.database.db, this.props.database.currentTable, null, null, (reset) ? 0 : this.props.database.currentPage, 20, stringFilter).then(res => {
                 this.props.setCurrentData(this.props.database, res, this.props.database.currentPage + 1, reset);

@@ -41,7 +41,6 @@ class FormModalScreen extends React.Component {
     }
 
     Header() {
-        console.log('props header', this.props.header);
         this.header = this.props.header.headers;
         this.nbItems = this.props.header.cells;
         /*

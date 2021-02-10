@@ -150,7 +150,6 @@ export async function onSetSCanState(state) {
 }
 
 export async function saveSurveyAfterScanning(db, dispatch, dbState, state, user, mode) {
-    console.log('mon mode', mode);
     let fieldNameToCheck = (mode === 'eq') ? 'eq_std' : 'fn_std';
     return new Promise(resolve => {
         let requiredField = state.defFields.filter((item) => {
@@ -178,7 +177,20 @@ export async function saveSurveyAfterScanning(db, dispatch, dbState, state, user
             } else {
                 let date = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
                 survey = {...state.survey, date_updated: '', date_scan: date, time_scan: date, scanned_by: user};
-                insertDataToTable(db, mode + '_surv', Object.keys(survey), [Object.values(survey)]).then(res => {
+                let index = -1;
+                let keys = Object.keys(survey);
+                let data = Object.values(survey);
+                if (mode === 'ta') {
+                    index = keys.indexOf('eq_std');
+                } else if (mode === 'eq') {
+                    index = keys.indexOf('fn_std');
+                }
+
+                if (index > -1) {
+                    keys.splice(index, 1);
+                    data.splice(index, 1);
+                }
+                insertDataToTable(db, mode + '_surv', keys, [data]).then(res => {
                     getListOfTableAndCount(db).then(res => {
                         dispatch({type: SET_TABLE_LIST, tables: res});
                     }).catch((err) => {
