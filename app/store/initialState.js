@@ -18,7 +18,7 @@ export const initialState = {
         currentData: [],
         currentHeader: {fields: []},
         currentPage: 0,
-        dbName: 'A4N_db_142.db',
+        dbName: 'A4N_db_142B222.db',
         db: null,
         error: {error: false, title: 'Database error', message: 'An error occured while tryin to create data.'},
         loading: {loading: false, message: null}
@@ -46,7 +46,7 @@ export const initialState = {
         canScan: true
     },
     translation: {
-        lang: "en",
-        data: getDefaultTranslation(),
+        lang: "fr",
+        data: [],
     }
 }

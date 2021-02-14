@@ -6,30 +6,30 @@ import ErrorScreen from "./ErrorScreen";
 import LoadingScreen from "./LoadingScreen";
 import {initApplication} from "../store/actions/actions";
 import TabScreen from "./authentificated/TabScreen";
-import {initApp} from "../store/actions/init";
+import {init} from "../store/actions/init";
 import {translate} from "../store/reducers/translation";
 
 class A4N extends React.Component {
 
     translation;
+
     constructor(props) {
         super(props);
         this.translation = {
             dbInitialisation: translate('general-screen', 'db-init', this.props.translation),
             wait: translate('general-screen', 'wait', this.props.translation)
         }
-        initApp(this.props).then(res => {
-            this.props.initApplication({user: res.user, database: res.database});
+        init(this.props).subscribe((data) => {
+            this.props.initApplication(data.state);
             this.setState({init: true});
-        }).catch(err => {
-        })
+        });
     }
 
     render() {
         if (this.props.database.loading.loading) {
             return (
                 <Provider store={Store}>
-                    <LoadingScreen title={this.translation.dbInitialisation} message={this.translation.wait}/>
+                    <LoadingScreen title='' message=''/>
                 </Provider>
             )
         } else {
@@ -44,12 +44,21 @@ class A4N extends React.Component {
             } else {
                 // MODIFY THIS LINE AFTER DEV
                 if (this.props.user.logged) {
-                    //this.props.getLocalParam(this.props.data.db);
-                    return (
-                        <Provider store={Store}>
-                            <TabScreen/>
-                        </Provider>
-                    )
+                    if(this.props.translation.data.length === 0){
+                        return (
+                            <Provider store={Store}>
+                                <ErrorScreen title='Translation missing'
+                                             message='The translations are missing, after the first connection you must restart the application in order to start loading them'/>
+                            </Provider>
+                        )
+                    }else{
+                        //this.props.getLocalParam(this.props.data.db);
+                        return (
+                            <Provider store={Store}>
+                                <TabScreen/>
+                            </Provider>
+                        )
+                    }
                 } else {
                     return (
                         <Provider store={Store}>

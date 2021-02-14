@@ -62,11 +62,6 @@ export function openLocalDatabase(dbName) {
     try {
         const db = SQLite.openDatabase(dbName);
         response = {error: {error: false}, db: db, initialized: true, loading: {loading: true, message: null}}
-        /*db.transaction(tx=> {
-                 let delQuery = 'delete  from param_table ';
-                 tx.executeSql(delQuery);
-
-         });*/
     } catch (ex) {
         response = {error: {error: true, message: ex}, db: null, initialized: false, loading: {loading: false}}
     }

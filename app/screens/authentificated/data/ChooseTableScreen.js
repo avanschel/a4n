@@ -46,6 +46,8 @@ class ChooseTableScreen extends React.Component {
                 title += ' ' + table.nb_element + ' ';
                 title += (table.nb_element > 1) ? ' ' + elements : ' ' + element;
                 list.push({key: table.table_name, text: title});
+            } else {
+                console.log(table);
             }
         }
         /*  for (let i = 0; i < this.props.database.tables.length; i++) {
