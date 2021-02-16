@@ -19,6 +19,7 @@ class A4N extends React.Component {
             dbInitialisation: translate('general-screen', 'db-init', this.props.translation),
             wait: translate('general-screen', 'wait', this.props.translation)
         }
+
         init(this.props).subscribe((data) => {
             this.props.initApplication(data.state);
             this.setState({init: true});
@@ -44,21 +45,13 @@ class A4N extends React.Component {
             } else {
                 // MODIFY THIS LINE AFTER DEV
                 if (this.props.user.logged) {
-                    if(this.props.translation.data.length === 0){
-                        return (
-                            <Provider store={Store}>
-                                <ErrorScreen title='Translation missing'
-                                             message='The translations are missing, after the first connection you must restart the application in order to start loading them'/>
-                            </Provider>
-                        )
-                    }else{
-                        //this.props.getLocalParam(this.props.data.db);
-                        return (
-                            <Provider store={Store}>
-                                <TabScreen/>
-                            </Provider>
-                        )
-                    }
+
+                    //this.props.getLocalParam(this.props.data.db);
+                    return (
+                        <Provider store={Store}>
+                            <TabScreen/>
+                        </Provider>
+                    )
                 } else {
                     return (
                         <Provider store={Store}>

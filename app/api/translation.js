@@ -51,7 +51,7 @@ export function getTranslationFromTable(db: WebSQLDatabase): Observable<any> {
     return from(promise);
 }
 
-export function retrieveTranslationFromApi(server, db): Observable<any> {
+export async function retrieveTranslationFromApi(server, db): Promise<any> {
     console.log('server url : ' + server + GET_TRANSLATION);
     const promise: Promise<any> = new Promise((resolve) => {
         axios.get(server + GET_TRANSLATION, {timeout: 35})
@@ -64,7 +64,7 @@ export function retrieveTranslationFromApi(server, db): Observable<any> {
                 resolve(errorCallback(error))
             })
     });
-    return from(promise);
+    return promise
 }
 
 export function clearAndInsertTranslate(db, translations): Observable<any> {

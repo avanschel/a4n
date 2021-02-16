@@ -30,19 +30,8 @@ export function init(state): Observable<any> {
                             nextState.user.initialized = true;
                             return getTranslation(nextState.database.db).pipe(switchMap((getTranslationResponse) => {
                                 console.log('mon getTranslationResponse', getTranslationResponse.data.length);
-                                if (getTranslationResponse.data.length > 0) {
-                                    nextState.translation.data = getTranslationResponse.data;
-                                    return of({error: false, state: nextState});
-                                } else {
-                                    return retrieveTranslationFromApi(nextState.user.server, nextState.database.db).pipe(map((result) => {
-                                        if (!result.error)
-                                            console.log('mon result api', result.data.length);
-                                        else
-                                            console.log('mon result api', result);
-                                        nextState.translation.data = (result.error) ? [] : result.data;
-                                        return {error: result.error, state: nextState};
-                                    }));
-                                }
+                                nextState.translation.data = getTranslationResponse.data;
+                                return of({error: false, state: nextState});
                             }));
                         }
                     }))

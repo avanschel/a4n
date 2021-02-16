@@ -22,6 +22,8 @@ import {getAssetsFromApiAsync} from "./assets";
 import {SURV_PREFIX} from "../../constante";
 import {retrieveListOfTable} from "./data";
 import {translate} from "../store/reducers/translation";
+import {retrieveTranslationFromApi} from "./translation";
+import {map} from "rxjs/operators";
 
 
 /* Import part ==========================================================================
@@ -36,14 +38,15 @@ import {translate} from "../store/reducers/translation";
         8. is Finished :)
     ======================================================================================= */
 
-export async function importData(db, server, dispatch, state,translation) {
-    const translateTxt= {
-        createStructureError: translate('import-screen', 'create-structure-error',translation),
+export async function importData(db, server, dispatch, state, translation) {
+    const translateTxt = {
+        createStructureError: translate('import-screen', 'create-structure-error', translation),
         importProgress: translate('import-screen', 'import-progress', translation),
         initStorage: translate('import-screen', 'init-storage', translation),
         assetRetrieve: translate('import-screen', 'asset-retrieve', translation),
         createTable: translate('import-screen', 'create-table', translation),
         retrieveDataSrv: translate('import-screen', 'retrieve-data-srv', translation),
+        retrieveTranslateSrv: translate('import-screen', 'retrieve-translate-srv', translation),
         success: translate('import-screen', 'success', translation),
         insert: translate('import-screen', 'insert', translation),
         finishedTable: translate('import-screen', 'table-finished', translation),
@@ -98,7 +101,7 @@ export async function importData(db, server, dispatch, state,translation) {
                         };
                         dispatch({type: PROGRESS_UPDATE, state: state});
                         // Step 4 and 5
-                        retrieveAllTableDefinitions(db, dispatch, server, state,translateTxt).then(fieldDefinitions => {
+                        retrieveAllTableDefinitions(db, dispatch, server, state, translateTxt).then(fieldDefinitions => {
                             state = {
                                 loading: true,
                                 button: false,
@@ -110,7 +113,7 @@ export async function importData(db, server, dispatch, state,translation) {
                             };
                             dispatch({type: PROGRESS_UPDATE, state: state});
                             // Step 6
-                            createAllTables(db, dispatch, state,translateTxt).then(tableDefs => {
+                            createAllTables(db, dispatch, state, translateTxt).then(tableDefs => {
                                 // Step 7
                                 state = {
                                     loading: true,
@@ -124,8 +127,21 @@ export async function importData(db, server, dispatch, state,translation) {
                                 dispatch({type: PROGRESS_UPDATE, state: state});
                                 //FINAL STEP HERE
                                 getListOfTableAndCount(db).then(tablesCount => {
-                                    retrieveAndFillTable(db, dispatch, server, state, fieldDefinitions, tablesCount,translateTxt).then(final => {
-                                        resolve(final);
+                                    retrieveAndFillTable(db, dispatch, server, state, fieldDefinitions, tablesCount, translateTxt).then(final => {
+
+                                        state = {
+                                            loading: true,
+                                            button: false,
+                                            error: false,
+                                            errorMessage: null,
+                                            cat: translateTxt.importProgress,
+                                            text: translateTxt.retrieveTranslateSrv,
+                                            percent: 100
+                                        };
+                                        dispatch({type: PROGRESS_UPDATE, state: state});
+                                        retrieveTranslationFromApi(server, db).then((result) => {
+                                            resolve(final);
+                                        });
                                     })
                                 })
                             }).catch(err => {
@@ -205,7 +221,7 @@ export async function insertAfmFieldInAfmTbl(db, tbl) {
     })
 }
 
-export async function retrieveAllTableDefinitions(db, dispatch, server, state,translate) {
+export async function retrieveAllTableDefinitions(db, dispatch, server, state, translate) {
     return new Promise(resolve => {
         getAssetsFromApiAsync(server, 'afm_flds', 0).then(res => {
             let tableDefsAndFields = {};
@@ -225,7 +241,7 @@ export async function retrieveAllTableDefinitions(db, dispatch, server, state,tr
     })
 }
 
-export async function insertAfmFldsAssetDef(db, dispatch, state, data,translate) {
+export async function insertAfmFldsAssetDef(db, dispatch, state, data, translate) {
     let table;
     let percent = 10;
     let fields = ["nbblocrecord", "table_name", "title", "field_name",
@@ -264,13 +280,15 @@ export async function insertAfmFldsAssetDef(db, dispatch, state, data,translate)
     return state;
 }
 
-export async function createAllTables(db, dispatch, state,translate) {
+export async function createAllTables(db, dispatch, state, translate) {
     return new Promise((resolve, reject) => {
         db.transaction(tx => {
             tx.executeSql(
-                    `select distinct table_name from afm_flds where table_name <> "afm_flds"`, [],
+                `select distinct table_name
+                 from afm_flds
+                 where table_name <> "afm_flds"`, [],
                 (_, {rows: {_array}}) => {
-                    launchCreateTable(db, dispatch, state, _array,translate).then(res => {
+                    launchCreateTable(db, dispatch, state, _array, translate).then(res => {
                         resolve(_array);
                     })
                 }
@@ -281,7 +299,7 @@ export async function createAllTables(db, dispatch, state,translate) {
     });
 }
 
-export async function launchCreateTable(db, dispatch, state, data,translate) {
+export async function launchCreateTable(db, dispatch, state, data, translate) {
     let percent = state.percent;
     for (let i = 0; i < data.length; i++) {
         percent += Math.round(20 / data.length);
@@ -306,11 +324,11 @@ export async function launchCreateTable(db, dispatch, state, data,translate) {
     return true;
 }
 
-export async function retrieveAndFillTable(db, dispatch, server, state, fieldDefinitions, tablesCount,translate) {
+export async function retrieveAndFillTable(db, dispatch, server, state, fieldDefinitions, tablesCount, translate) {
     return new Promise(resolve => {
         getNbElementForTable(db).then(nbBloc => {
             launchEraseTable(db, server, nbBloc).then(res => {
-                launchRetrieveAndFill(db, server, dispatch, nbBloc, state, fieldDefinitions, tablesCount,translate).then(res => {
+                launchRetrieveAndFill(db, server, dispatch, nbBloc, state, fieldDefinitions, tablesCount, translate).then(res => {
                     resolve(res);
                 })
             })
@@ -333,7 +351,7 @@ export async function launchEraseTable(db, server, nbBloc) {
     return true;
 }
 
-export async function launchRetrieveAndFill(db, server, dispatch, nbBloc, state, fieldDefinitions, tablesCount,translate) {
+export async function launchRetrieveAndFill(db, server, dispatch, nbBloc, state, fieldDefinitions, tablesCount, translate) {
     /* For graphical */
     let elements = 0;
     for (let i = 0; i < tablesCount.length; i++) {
@@ -390,7 +408,7 @@ export async function launchInsertDataToTable(db, tableName, dataArray, dispatch
     let valuesArray = [];
     percent = Math.round((percent + percentStep) * 100) / 100;
     for (let data of dataArray[tableName + '_list']) {
-        text = translate.insertElement + ' '+ tableName + ' page ' + (current + 1) + '/' + nbBLoc + ' ... ';
+        text = translate.insertElement + ' ' + tableName + ' page ' + (current + 1) + '/' + nbBLoc + ' ... ';
         // Prepare data, because we receive some field that not used into the app.
         let values = [];
         for (let i = 0; i < fieldDefinitions[tableName].length; i++) {
